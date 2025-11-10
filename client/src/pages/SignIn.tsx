@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import {z} from 'zod';
+import axiosInstance from '../api/axiosInstance';
+import { useMutation } from '@tanstack/react-query';
 
 const formschema=z.object({
-  username:z.string(),
+  email:z.string().email(),
   password:z.string().min(5)
 })
 
@@ -13,19 +15,42 @@ const SignIn = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState:{errors},
   } = useForm<FormData>({
     resolver:zodResolver(formschema)
   });
-  const onSubmit:SubmitHandler<FormData>=(data)=>{
-       console.log(data);
+
+  const submitUser=async(user:FormData)=>{
+    const response=await axiosInstance.post('/api/auth/login',user);
+    return response.data;
   }
+
+  const mutation=useMutation({
+     mutationFn:submitUser,
+     onSuccess:(data)=>{
+      // console.log(data)
+      localStorage.setItem("token",data.data)
+      alert("login successfull");
+      reset();
+     },
+     onError:()=>{
+      alert("Error! Please try again later!");
+     }
+  })
+
+  const onSubmit:SubmitHandler<FormData>=(data)=>{
+    // console.log(data,"data")
+      mutation.mutateAsync(data);  
+  }
+
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}> 
       <div>
-         <label>username:</label>
-         <input type='text' {...register("username")}/>
-         <p>{errors.username?.message}</p>
+         <label>Email:</label>
+         <input type='email' {...register("email")}/>
+         <p>{errors.email?.message}</p>
       </div>
       <div>
          <label>password:</label>

@@ -1,7 +1,7 @@
 import {useForm, type SubmitHandler} from "react-hook-form";
-import {z} from 'zod';
+import { z} from 'zod';
 import { Link } from "react-router";
-// import  axiosInstance  from '../api/axiosInstance.ts'
+import  axiosInstance  from '../api/axiosInstance.ts'
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const userFormSchema=z.object({
   email:z.string().email(),
   password:z.string().min(8),
-  username:z.string().min(4)
+  username:z.string().min(4),
 })
 
 
@@ -32,11 +32,17 @@ const Signup = () => {
     });
     //register binds with input fields and handlesubmit validates the input 
 
-    const submitUser=async(user:UserForm)=>{
-      // const response=await axiosInstance.post('/api/signup',user);
-      // return response.data;
-      console.log("user",user)
-      return user;
+    const submitUser=async(user:UserForm)=>{     
+      // console.log("user",user)
+      const formData={
+         username:user.username,
+         email:user.email,
+         password:user.password,
+         role:"admin"
+      }
+      const response=await axiosInstance.post('/api/auth/register',formData);
+      return response.data;
+
     }
 
   const mutation=useMutation({
@@ -44,10 +50,12 @@ const Signup = () => {
     //directly sends the user object to submitUser fn
     onSuccess:()=>{
       alert("User Registered successfullyy!!");
+      localStorage.setItem("role","admin");
       reset();     
     },
-    onError:()=>{
-      setError("root",{message:"This email is already taken!!"})
+    onError:(error)=>{
+      const message=error.message||"Something went wrong!";
+      setError("root",{message})
     }
   
   })
