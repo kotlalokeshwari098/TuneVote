@@ -3,6 +3,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form'
 import {z} from 'zod';
 import axiosInstance from '../api/axiosInstance';
 import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router';
 
 const formschema=z.object({
   email:z.string().email(),
@@ -20,6 +21,7 @@ const SignIn = () => {
   } = useForm<FormData>({
     resolver:zodResolver(formschema)
   });
+  const navigate=useNavigate();
 
   const submitUser=async(user:FormData)=>{
     const response=await axiosInstance.post('/api/auth/login',user);
@@ -33,6 +35,7 @@ const SignIn = () => {
       localStorage.setItem("token",data.data)
       alert("login successfull");
       reset();
+      navigate('/create-jam')
      },
      onError:()=>{
       alert("Error! Please try again later!");
