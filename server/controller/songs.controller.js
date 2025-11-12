@@ -25,7 +25,13 @@ const searchSong=async(req,res)=>{
         });
         // console.log(response.data)
         
-        const track = response.data.tracks.items;
+        const track = response.data.tracks.items.map((item)=>({
+             name:item.name,
+            id:item.id,
+            image:item.album.images
+        }
+            
+        ));
         // console.log(track);
         return res.status(200).json(new ApiResponse(200, true, 'Song fetched successfully', track));
     } catch (error) {
