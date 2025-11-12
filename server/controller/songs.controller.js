@@ -1,6 +1,7 @@
 const ApiResponse = require("../utils/ApiResponse")
 const {getAccessToken}=require("../utils/spotifyAuth.js")
 const axios=require("axios")
+const pool=require('../db/db.js')
 // - Token Caching: Avoid fetching the token on every request — cache it until it expires.
 // 
 const searchSong=async(req,res)=>{
@@ -35,9 +36,22 @@ const searchSong=async(req,res)=>{
         // console.log(track);
         return res.status(200).json(new ApiResponse(200, true, 'Song fetched successfully', track));
     } catch (error) {
-        return res.status(500).json(new ApiResponse(500, false, error.message));
+        return res.status(500).json(new ApiResponse(500, false, 'Internal Server Error'));
     }
 
 }
 
-module.exports={searchSong}
+const createJam=async(req,res)=>{
+    // console.log(req.body);
+    const {name,songs}=req.body;
+    try {
+        const response=await pool.query(`INSERT INTO jamsessions (user_id,jamname,songsList) values($1,$2,$3)`,[req.userId,name,JSON.stringify(songs)]);
+        // console.log(response)
+        return res.status(201).json(new ApiResponse(201,"true","Jam added successfully"))
+    } catch (error) {
+        // console.log(error.message)
+        return res.status(500).json(new ApiResponse(500,false,'Internal Server Error'))
+    }
+}
+
+module.exports={searchSong,createJam}

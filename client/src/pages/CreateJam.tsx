@@ -17,7 +17,7 @@ const CreateJam = () => {
     const [inputSong,setInputSong]=useState("");
     const [debounceCue,SetDebounceCue]=useState("");
     const [jamName,setJamName]=useState("");
-
+    const token=localStorage.getItem("token")
 
     const handleSubmit=(e:React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
@@ -31,9 +31,13 @@ const CreateJam = () => {
             name:jamName,
             songs:songsInJam
         }
-        console.log(formData);
-        return formData;
-            // const response=await axiosInstance.post('/api/jams/create-jam',)
+        const response=await axiosInstance.post('/api/songs/create-jam',formData,{
+            headers:{
+                Authorization:`Bearer ${token}`
+            }
+        })
+        // console.log(response,"responseeeuuu");
+        return response.data.message;
     }
 
     const mutation=useMutation({
@@ -41,8 +45,8 @@ const CreateJam = () => {
         onSuccess:()=>{
           alert("Jam submitted successfullyy!!");
         },
-        onError:()=>{
-        alert("Error! Please try again later!");
+        onError:(error)=>{
+        alert(error.message);
         }
     })
 

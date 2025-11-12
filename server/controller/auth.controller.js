@@ -34,9 +34,9 @@ const loginUser=async(req,res)=>{
 
         const hashedPassword=response.rows[0].password
         const checkPassword=bcrypt.compareSync(password,hashedPassword)
-
+        const id=response.rows[0].id;
         if(!checkPassword) return res.status(401).json(new ApiResponse(401,"false","Password is incorrect!"))
-        const token=jwt.sign({email},process.env.JWT_SECRET,{ expiresIn: '2h' })
+        const token=jwt.sign({id},process.env.JWT_SECRET,{ expiresIn: '2h' })
 
         return res.status(200).json(new ApiResponse(200,"true","Login successful",token))
     } catch (error) {
