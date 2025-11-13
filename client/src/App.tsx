@@ -10,6 +10,7 @@ import Signup from "./pages/Signup"
 import SignIn from "./pages/SignIn"
 import JoinJam from "./pages/JoinJam"
 import CreateJam from "./pages/CreateJam"
+import ViewJams from "./pages/ViewJams"
 
 const routes=createBrowserRouter(
   createRoutesFromElements(
@@ -19,6 +20,7 @@ const routes=createBrowserRouter(
        <Route path='/signin' element={<SignIn />}/>
        <Route path='/join-jam' element={<JoinJam />}/>
        <Route path='/create-jam' element={<CreateJam />}/>
+       <Route path='/view-jams' element={<ViewJams />}/>
     </Route>
   )
 )

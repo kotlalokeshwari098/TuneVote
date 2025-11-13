@@ -33,6 +33,7 @@ const SignIn = () => {
      onSuccess:(data)=>{
       // console.log(data)
       localStorage.setItem("token",data.data)
+      localStorage.setItem("role","admin")
       alert("login successfull");
       reset();
       navigate('/create-jam')

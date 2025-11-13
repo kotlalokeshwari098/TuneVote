@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react"
 import axiosInstance from "../api/axiosInstance";
+import { Link } from "react-router";
 
 type song={
    id:number,
@@ -44,6 +45,7 @@ const CreateJam = () => {
         mutationFn:submitJam,
         onSuccess:()=>{
           alert("Jam submitted successfullyy!!");
+          setSongsInJam([]);
         },
         onError:(error)=>{
         alert(error.message);
@@ -112,6 +114,7 @@ const CreateJam = () => {
                      placeholder="Search for a song..."
                   />
                   <button onClick={()=>setInputSong("")}>X</button>
+                  <Link to='/view-jams'>View Jams</Link>
                </div>
                
                 {data && data.length > 0 && (
