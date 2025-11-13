@@ -1,7 +1,29 @@
 import { useQuery } from "@tanstack/react-query"
-import { useEffect, useState } from "react"
-import { Link } from "react-router"
+import { useState } from "react"
 import axiosInstance from "../api/axiosInstance"
+
+
+interface jamData {
+    id:number,
+    user_id:number,
+    jamname:string,
+    songslist:[
+        {
+            id:number,
+            image:[{
+                height:number,
+                url:string,
+                width:number
+            }],
+            name:string
+        }
+    ]
+}
+
+interface jamData{
+    username:string
+}
+
 
 
 const ViewJams = () => {
@@ -16,7 +38,16 @@ const ViewJams = () => {
             headers:{
                 Authorization:`Bearer ${token}`
         }})
-        console.log(response.data.data);
+        // console.log(response.data.data);
+        return response.data.data;
+    }
+
+    const fetchAllJams=async()=>{
+        const response=await axiosInstance.get('/api/songs/get-all-jams',{
+            headers:{
+                Authorization:`Bearer ${token}`
+        }})
+        // console.log(response.data.data);
         return response.data.data;
     }
 
@@ -26,7 +57,10 @@ const ViewJams = () => {
         queryFn:fetchAdminJamList
     })
 
-
+    const {data:allJams}=useQuery({
+        queryKey:["alljams"],
+        queryFn:fetchAllJams
+    })
 
 
   return (
@@ -58,12 +92,12 @@ const ViewJams = () => {
 
        {showMyJams && 
        
-          data.length>0?data.map((jam)=>(
-            <div className="mb-6 bg-white/5 border border-white/10 rounded-lg p-4" >
-                <div className="text-white font-medium text-lg mb-3">{jam.jamname}</div>
+          data.length>0 && data.map((jam:jamData)=>(
+            <div className="mb-6 bg-white/5 border border-white/10 rounded-lg p-4" key={jam.id}>
+                <div className="text-white font-medium text-lg mb-3" >{jam.jamname}</div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {jam.songslist.map((song)=>(
-                    <div className="flex items-center gap-4 bg-white/3 p-3 rounded-md" >
+                    <div className="flex items-center gap-4 bg-white/3 p-3 rounded-md" key={song.id}>
                         <img src={song.image[0].url} alt={song.name} className="w-20 h-20 object-cover rounded-md"/>
                         <div className="text-white">
                           <div className="font-semibold">{song.name}</div>
@@ -72,14 +106,30 @@ const ViewJams = () => {
                   ))}
                 </div>
             </div>
-          )):<div className="text-white/70">No jams found.</div>
+          ))
        
        }
        {showAllJams &&
          <div className="text-white/90 p-4 bg-white/5 border border-white/10 rounded-md">
-           all jams list will be displayed here!!
+            {allJams && allJams.length>0 ? allJams.map((jam:jamData)=>(
+                <div key={jam.id} className="mb-6">
+                    <div className="text-white font-medium text-lg mb-3">{jam.jamname} <span className="text-sm text-white/70">by {jam.username} </span></div>  
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {jam.songslist.map((song)=>(
+                            <div key={song.id} className="flex items-center gap-4 bg-white/3 p-3 rounded-md" >
+                                <img src={song.image[0].url} alt={song.name} className="w-20 h-20 object-cover rounded-md"/>
+                                <div className="text-white">
+                                  <div className="font-semibold">{song.name}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )):<div className="text-white/70">No jams found.</div>}
          </div>
        }
+
+   
        </div>
     </div>
   )

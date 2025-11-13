@@ -8,6 +8,7 @@ const verifyToken=require('../middleware/verifyToken.js')
 route.get('/search-song',songsController.searchSong);
 route.post('/create-jam',verifyToken,songsController.createJam);
 route.get('/get-jamList',verifyToken,songsController.getJamList);
+route.get('/get-all-jams',songsController.getAllJams);
 
 
 

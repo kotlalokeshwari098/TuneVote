@@ -63,8 +63,21 @@ const getJamList=async(req,res)=>{
     }
 }
 
+const getAllJams=async(req,res)=>{
+    try {
+        const response=await pool.query(`SELECT jamsessions.*, u.username FROM jamsessions JOIN users u ON jamsessions.user_id = u.id`)
+        console.log(response.rows)
+        return res.status(201).json(new ApiResponse(201,"true","Fetched successfully!!",response.rows))
+    }
+        catch (error) { 
+        return res.status(500).json(new ApiResponse(500,"false","Internal Server Error"))
+    }
+}
+
+
 module.exports={
     searchSong,
     createJam,
-    getJamList
+    getJamList,
+    getAllJams
 }
