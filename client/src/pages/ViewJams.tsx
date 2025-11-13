@@ -7,20 +7,20 @@ interface jamData {
     id:number,
     user_id:number,
     jamname:string,
-    songslist:[
+    songslist:
         {
             id:number,
-            image:[{
+            image:{
                 height:number,
                 url:string,
                 width:number
-            }],
+            }[],
             name:string
-        }
-    ]
+        }[]
+    
 }
 
-interface jamData{
+interface alljamData extends jamData{
     username:string
 }
 
@@ -111,7 +111,7 @@ const ViewJams = () => {
        }
        {showAllJams &&
          <div className="text-white/90 p-4 bg-white/5 border border-white/10 rounded-md">
-            {allJams && allJams.length>0 ? allJams.map((jam:jamData)=>(
+            {allJams && allJams.length>0 ? allJams.map((jam:alljamData)=>(
                 <div key={jam.id} className="mb-6">
                     <div className="text-white font-medium text-lg mb-3">{jam.jamname} <span className="text-sm text-white/70">by {jam.username} </span></div>  
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
