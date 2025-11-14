@@ -2,6 +2,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react"
 import axiosInstance from "../api/axiosInstance";
 import { Link } from "react-router";
+import { generateUniqueId } from "../utils/generateUniqueId";
+import { useGetQRCode } from "../customhooks/createJamsMutations";
 
 type song={
    id:number,
@@ -18,7 +20,11 @@ const CreateJam = () => {
     const [inputSong,setInputSong]=useState("");
     const [debounceCue,SetDebounceCue]=useState("");
     const [jamName,setJamName]=useState("");
+    const [QRCode,setQRCode]=useState("")
+    const [uniqueRoomId,setUniqueRoomId]=useState<string>()
     const token=localStorage.getItem("token")
+
+    const getQrCode=useGetQRCode();
 
     const handleSubmit=(e:React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
@@ -95,6 +101,17 @@ const CreateJam = () => {
          setSongsInJam((prev)=>prev.filter((song)=> song.id!=id));
       }
 
+
+
+      const generateIdAndQRCode=async()=>{
+         const getUniqueId=generateUniqueId(jamName);
+         const fullURL = `http://localhost:5656/api/jam/room/${getUniqueId}`;
+         const response=await getQrCode.mutateAsync(fullURL);
+        //  console.log(response)
+         setQRCode(response.data.data)
+         setUniqueRoomId(getUniqueId)
+      }
+
    
   return (
     <div className="min-h-screen bg-linear-to-br from-purple-900 via-blue-900 to-indigo-900 p-8">
@@ -157,6 +174,9 @@ const CreateJam = () => {
                      }}>Remove</button>
                   </div>
                 ))}</div>
+                <button type="button" onClick={()=>generateIdAndQRCode()}>Generate QR Code</button>
+                {QRCode && <img src={QRCode} alt="QR Code" />}
+                {uniqueRoomId && <div>unqiue Room id : {uniqueRoomId}</div>}
                 <input type="submit"/>
             </form>}
         </div>
