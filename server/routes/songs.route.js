@@ -2,11 +2,11 @@ const express =require  ("express");
 const route=express.Router();
 const songsController=require('../controller/songs.controller.js')
 const verifyToken=require('../middleware/verifyToken.js')
-
+const upload = require('../middleware/multer.middleware');
 
 
 route.get('/search-song',songsController.searchSong);
-route.post('/create-jam',verifyToken,songsController.createJam);
+route.post('/create-jam',verifyToken,upload.single('qrcode'),songsController.createJam);
 route.get('/get-jamList',verifyToken,songsController.getJamList);
 route.get('/get-all-jams',songsController.getAllJams);
 

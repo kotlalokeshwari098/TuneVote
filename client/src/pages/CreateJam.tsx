@@ -34,10 +34,15 @@ const CreateJam = () => {
 
     const submitJam=async(e:React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-        const formData={
-            name:jamName,
-            songs:songsInJam
-        }
+
+        const response1 = await fetch(QRCode);
+        const blob = await response1.blob();
+
+        const formData=new FormData()
+        formData.append("name",jamName)
+        formData.append("songs",JSON.stringify(songsInJam))
+        formData.append("roomId",uniqueRoomId)
+        formData.append("qrcode",blob,"qr.png")
         const response=await axiosInstance.post('/api/songs/create-jam',formData,{
             headers:{
                 Authorization:`Bearer ${token}`
@@ -153,8 +158,8 @@ const CreateJam = () => {
                 )}
             </div>
 
-            {songsInJam.length>0 && <form className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20" onSubmit={handleSubmit}>
-            <div className="mb-5">
+            {songsInJam.length>0 && <form className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20" encType="multipart/form-data" onSubmit={handleSubmit}>
+            <div className="mb-5" >
                 <label className="block text-white text-lg font-semibold mb-2">Jam Name:</label>
                  <input 
                  className="w-full px-4 py-3 rounded-lg bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-purple-400 transition-colors" 

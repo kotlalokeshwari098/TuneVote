@@ -1,6 +1,7 @@
 const ApiResponse = require("../utils/ApiResponse")
 const {getAccessToken}=require("../utils/spotifyAuth.js")
 const axios=require("axios")
+const {uploadOnCloudinary}=require('../utils/cloudinary.js')
 const pool=require('../db/db.js')
 
 const searchSong=async(req,res)=>{
@@ -42,9 +43,25 @@ const searchSong=async(req,res)=>{
 
 const createJam=async(req,res)=>{
     // console.log(req.body);
-    const {name,songs}=req.body;
+    const {name,songs,roomId}=req.body;
     try {
-        const response=await pool.query(`INSERT INTO jamsessions (user_id,jamname,songsList) values($1,$2,$3)`,[req.userId,name,JSON.stringify(songs)]);
+        let qrUrl="";
+        let qrPublicId="";
+        if (req.file) {
+          const uploadResult = await uploadOnCloudinary(req.file.path);
+          originalFileName = req.file.originalname; 
+
+
+          if (!uploadResult) {
+            return res.status(500).json({ message: "Failed to upload resume" });
+          }
+          qrUrl = uploadResult.secure_url;
+          qrPublicId = uploadResult.public_id;
+        }
+
+        const response=await pool.query(`INSERT INTO jamsessions (user_id,jamname,songsList,qrcodeurl,qrcodepublicid,uniqueroomjamid) values($1,$2,$3,$4,$5,$6)`,[req.userId,name,JSON.stringify(songs),qrUrl,qrPublicId,roomId]);
+
+
         // console.log(response)
         return res.status(201).json(new ApiResponse(201,"true","Jam added successfully"))
     } catch (error) {
@@ -66,7 +83,7 @@ const getJamList=async(req,res)=>{
 const getAllJams=async(req,res)=>{
     try {
         const response=await pool.query(`SELECT jamsessions.*, u.username FROM jamsessions JOIN users u ON jamsessions.user_id = u.id`)
-        console.log(response.rows)
+        // console.log(response.rows)
         return res.status(201).json(new ApiResponse(201,"true","Fetched successfully!!",response.rows))
     }
         catch (error) { 
