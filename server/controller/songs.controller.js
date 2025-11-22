@@ -73,8 +73,17 @@ const createJam=async(req,res)=>{
 const getJamList=async(req,res)=>{
     try {
         const response=await pool.query(`SELECT * FROM jamsessions WHERE user_id=($1)`,[req.userId])
-        // console.log(response)
-        return res.status(201).json(new ApiResponse(201,"true","Fetched successfully!!",response.rows))
+        console.log(response.rows)
+
+
+        const response1=response.rows.map((r)=>{
+            if(r.songslist) return {...r,songslist:(JSON.parse(r.songslist))}
+            else return r
+        })
+
+        console.log(Array.isArray(response1[0].songslist))  // true
+        console.log(response1[0].songslist[0].name)   
+        return res.status(201).json(new ApiResponse(201,"true","Fetched successfully!!",response1))
     } catch (error) {
         return res.status(500).json(new ApiResponse(500,"false","Internal Server Error"))
     }
@@ -84,11 +93,16 @@ const getAllJams=async(req,res)=>{
     try {
         const response=await pool.query(`SELECT jamsessions.*, u.username FROM jamsessions JOIN users u ON jamsessions.user_id = u.id`)
         // console.log(response.rows)
-        return res.status(201).json(new ApiResponse(201,"true","Fetched successfully!!",response.rows))
+        const response1=response.rows.map((r)=>{
+            if(r.songslist) return {...r,songslist:(JSON.parse(r.songslist))}
+            else return r
+        })
+        
+        return res.status(201).json(new ApiResponse(201,"true","Fetched successfully!!",response1))
     }
         catch (error) { 
         return res.status(500).json(new ApiResponse(500,"false","Internal Server Error"))
-    }
+    }``
 }
 
 

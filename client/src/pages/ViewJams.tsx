@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import axiosInstance from "../api/axiosInstance"
 
 
@@ -61,6 +61,10 @@ const ViewJams = () => {
         queryKey:["alljams"],
         queryFn:fetchAllJams
     })
+
+    useEffect(()=>{
+      setShowAllJams(true);
+    },[])
 
 
   return (
