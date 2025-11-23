@@ -6,7 +6,7 @@ const Home = () => {
     <div>
         VoteTune 
         <Link to='/signup'>Create Jam</Link>
-        <button>Join Jam</button>
+        <Link to='/join-jam'>Join Jam</Link>
     </div>
   )
 }
