@@ -73,7 +73,7 @@ const createJam=async(req,res)=>{
 const getJamList=async(req,res)=>{
     try {
         const response=await pool.query(`SELECT * FROM jamsessions WHERE user_id=($1)`,[req.userId])
-        console.log(response.rows)
+        // console.log(response.rows)
 
 
         const response1=response.rows.map((r)=>{
@@ -81,8 +81,8 @@ const getJamList=async(req,res)=>{
             else return r
         })
 
-        console.log(Array.isArray(response1[0].songslist))  // true
-        console.log(response1[0].songslist[0].name)   
+        // console.log(Array.isArray(response1[0].songslist))  // true
+        // console.log(response1[0].songslist[0].name)   
         return res.status(201).json(new ApiResponse(201,"true","Fetched successfully!!",response1))
     } catch (error) {
         return res.status(500).json(new ApiResponse(500,"false","Internal Server Error"))

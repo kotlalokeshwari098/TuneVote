@@ -1,12 +1,13 @@
 const express=require('express');
-const app=express();
-const port=5656;
 const pool=require('../db/db.js')
 const cors=require('cors')
 
+
+const app=express()
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-app.use(cors());
+
 
 app.get('/',(req,res)=>{
     res.send('Hello World!');
@@ -23,6 +24,4 @@ app.use('/api/jam',jamRoutes)
 
 pool.connect().then(()=>console.log("database is connected!!!"))
 
-app.listen(port,()=>{
-    console.log(`Server is running at ${port}`);
-});
+module.exports=app;

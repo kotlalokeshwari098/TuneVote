@@ -68,7 +68,7 @@ const ViewJams = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-800 p-6">
+    <div className="min-h-screen bg-linear-to-br from-gray-900 via-indigo-900 to-purple-800 p-6">
        <div className="max-w-4xl mx-auto">
          <header className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
            <h2 className="text-2xl font-semibold text-white">Jams</h2>

@@ -4,6 +4,7 @@ import {z} from 'zod';
 import axiosInstance from '../api/axiosInstance';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
+import { useUserContext } from '../customhooks/useUserContext';
 
 const formschema=z.object({
   email:z.string().email(),
@@ -22,19 +23,25 @@ const SignIn = () => {
     resolver:zodResolver(formschema)
   });
   const navigate=useNavigate();
+  const {user,setUser}=useUserContext()
 
   const submitUser=async(user:FormData)=>{
     const response=await axiosInstance.post('/api/auth/login',user);
     return response.data;
   }
 
+  console.log(user)
+
   const mutation=useMutation({
      mutationFn:submitUser,
      onSuccess:(data)=>{
-      // console.log(data)
-      localStorage.setItem("token",data.data)
+      console.log(data)
+      localStorage.setItem("token",data.data.token)
       localStorage.setItem("role","admin")
       alert("login successfull");
+      const userData=data.data.userWithoutPassword
+      localStorage.setItem("user",JSON.stringify(userData));
+      setUser(userData);
       reset();
       navigate('/create-jam')
      },
