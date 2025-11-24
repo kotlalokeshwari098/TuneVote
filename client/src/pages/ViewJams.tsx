@@ -78,7 +78,7 @@ const ViewJams = () => {
         const response=await axiosInstance.post(`/api/jam/${roomCode}`)
         if(response.status==200){
             alert(response.data.message)
-            navigate(`/jam-room/${roomCode}`)
+            navigate(`/jam-room/${jamname}`)
         }
        
        } catch (error) {

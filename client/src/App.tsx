@@ -24,7 +24,7 @@ const routes=createBrowserRouter(
        <Route element={<UserProtectWrapper /> }>
           <Route path='/join-jam' element={<JoinJam />}/>
           <Route path='/create-jam' element={<CreateJam />}/>
-          <Route path='/jam-room/:id' element={<JamRoom />}/>
+          <Route path='/jam-room/:jamName' element={<JamRoom />}/>
        </Route>      
     </Route>
   )

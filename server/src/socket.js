@@ -2,6 +2,8 @@ const socketIo = require("socket.io");
 const http = require('http');
 const app = require('./index.js');
 const pool=require('../db/db.js')
+const formatMessage=require('../utils/messages.js')
+const userJoin=require('../utils/jammers.js')
 
 const port = process.env.PORT;
 const server = http.createServer(app);
@@ -16,7 +18,7 @@ io=socketIo(server,{
 })
 
 io.on("connection", async (socket)=>{
-        socket.on("join", async (data) => {
+    socket.on("join", async (data) => {
       if(socket.joined) return;
       socket.joined = true;
       console.log(`Client joined: ${socket.id}`);
@@ -34,6 +36,14 @@ io.on("connection", async (socket)=>{
         [socket.id, userId]
       );
     });
+
+    socket.on("join_room",({username,jamName})=>{
+       const user=userJoin(socket.id,username,jamName);
+
+       socket.join(user.roomId)
+
+       socket.emit("message",formatMessage("TuneVote","welcome to tunevote!!"))
+    })
 
 
     socket.on("disconnect", () => {

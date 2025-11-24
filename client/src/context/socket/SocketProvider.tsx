@@ -4,9 +4,7 @@ import { io, Socket } from 'socket.io-client';
 import { useUserContext } from '../../customhooks/useUserContext';
 import { SocketContext } from './SocketContext';
 
-interface SocketContextType {
-  socket: Socket | null;
-}
+
 
 interface SocketProviderProps {
   children: ReactNode;
