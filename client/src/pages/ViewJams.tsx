@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import axiosInstance from "../api/axiosInstance"
-
+import { useUserContext } from "../customhooks/useUserContext"
+import { useNavigate } from "react-router"
+import { AxiosError } from "axios"
 
 interface jamData {
     id:number,
@@ -29,9 +31,14 @@ interface alljamData extends jamData{
 const ViewJams = () => {
     const token=localStorage.getItem("token");
     const role=localStorage.getItem("role");
+    const {user}=useUserContext();
+    const navigate=useNavigate();
 
-    const [showMyJams,setShowMyJams]=useState(false);
-    const [showAllJams,setShowAllJams]=useState(false);
+    const [showMyJams,setShowMyJams]=useState<boolean>(false);
+    const [showAllJams,setShowAllJams]=useState<boolean>(false);
+    const [showEnterCode,setShowEnterCode]=useState<boolean>(false);
+    const [jamname,setJamname]=useState<string>("");
+    const [roomCode,setRoomCode]=useState<string>("")
 
     const fetchAdminJamList=async()=>{
         const response=await axiosInstance.get('/api/songs/get-jamList',{
@@ -65,6 +72,21 @@ const ViewJams = () => {
     useEffect(()=>{
       setShowAllJams(true);
     },[])
+
+    const validateRoomCode=async()=>{
+       try {
+        const response=await axiosInstance.post(`/api/jam/${roomCode}`)
+        if(response.status==200){
+            alert(response.data.message)
+            navigate(`/jam-room/${roomCode}`)
+        }
+       
+       } catch (error) {
+        const err = error as AxiosError<{ message: string }>; 
+        const backendMessage = err.response?.data?.message; 
+        alert(backendMessage || "Something went wrong");
+       }
+    }
 
 
   return (
@@ -131,9 +153,40 @@ const ViewJams = () => {
                                         </div>
                                     ))}
                                 </div>
+                                {jam.username!=user?.username && <button onClick={()=>{
+                                    setShowEnterCode(prev=>!prev)
+                                    setJamname(jam.jamname)
+                                }}
+                                    >join room</button>}
                             </div>
                         )):<div className="text-center text-gray-500 py-12">No jams found.</div>}
                     </div>
+                )}
+
+                {showEnterCode && (
+                <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl shadow-lg p-6 w-[90%] max-w-sm flex flex-col gap-4">
+                    
+                    <p className="text-lg font-semibold text-center">
+                        Enter the code to join <span className="text-blue-600">{jamname}</span>
+                    </p>
+
+                    <input
+                        type="text"
+                        className="border p-2 rounded-md w-full"
+                        placeholder="Enter code"
+                        value={roomCode}
+                        onChange={(e)=>setRoomCode(e.target.value)}
+                    />
+
+                    <button className="bg-blue-600 text-white py-2 rounded-md"
+                    onClick={()=>validateRoomCode()}
+                    >
+                        OK
+                    </button>
+
+                    </div>
+                </div>
                 )}
             </div>
         </div>

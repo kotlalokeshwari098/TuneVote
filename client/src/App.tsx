@@ -12,6 +12,7 @@ import JoinJam from "./pages/JoinJam"
 import CreateJam from "./pages/CreateJam"
 import ViewJams from "./pages/ViewJams"
 import UserProtectWrapper from "./pages/UserProtectWrapper"
+import JamRoom from "./pages/JamRoom"
 
 const routes=createBrowserRouter(
   createRoutesFromElements(
@@ -23,6 +24,7 @@ const routes=createBrowserRouter(
        <Route element={<UserProtectWrapper /> }>
           <Route path='/join-jam' element={<JoinJam />}/>
           <Route path='/create-jam' element={<CreateJam />}/>
+          <Route path='/jam-room/:id' element={<JamRoom />}/>
        </Route>      
     </Route>
   )

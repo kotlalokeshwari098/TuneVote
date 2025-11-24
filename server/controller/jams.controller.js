@@ -1,5 +1,6 @@
 const ApiResponse = require("../utils/ApiResponse")
 const QRCode =require("qrcode")
+const pool = require("../db/db.js");
 
 
 const createQRCode=async(req,res)=>{
@@ -15,4 +16,17 @@ const createQRCode=async(req,res)=>{
     }
 }
 
-module.exports={createQRCode}
+const validateRoomCode=async(req,res)=>{
+    const {roomcode}=req.params;
+    try {
+        const response=await pool.query(`SELECT * FROM jamsessions WHERE uniqueroomjamid=($1)`,[roomcode])
+        if(!response.rows[0]){
+            return res.status(403).json(new ApiResponse(403,false,"Wrong Room Id"))
+        }
+        return res.status(200).json(new ApiResponse(200,true,"Entered The Correct RoomId"))
+    } catch (error) {
+        return res.status(500).json(new ApiResponse(500,false,"Error Validating RoomCode"))
+    }
+}
+
+module.exports={createQRCode,validateRoomCode}
