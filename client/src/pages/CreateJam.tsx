@@ -118,71 +118,129 @@ const CreateJam = () => {
 
    
   return (
-    <div className="min-h-screen bg-linear-to-br from-purple-900 via-blue-900 to-indigo-900 p-8">
-        <div className="max-w-2xl mx-auto">
-            <h1 className="text-4xl font-bold text-white mb-8 text-center">Create New Jam</h1>
-            
-            <div className="relative mb-6">
-               <div className="flex justify-center items-center">
-                  <label className="block text-white text-lg font-semibold mb-2">Search Songs:</label>
-                  <input 
-                     type="text"
-                     value={inputSong}
-                     onChange={(e)=>{
-                           setInputSong(e.target.value)
-                     }}
-                     className="w-full px-4 py-3 rounded-lg bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-purple-400 transition-colors"
-                     placeholder="Search for a song..."
-                  />
-                  <button onClick={()=>setInputSong("")}>X</button>
-                  <Link to='/view-jams'>View Jams</Link>
-               </div>
-               
-                {data && data.length > 0 && (
-                    <div className="absolute z-10 w-full mt-2 bg-gray-800 rounded-lg shadow-xl border border-gray-700 max-h-80 overflow-y-auto">
-                        {data.map((track:song, index:number) => (
-                            <div key={index} className="px-4 py-3 hover:bg-gray-700 cursor-pointer transition-colors border-b border-gray-700 last:border-b-0">
-                                <div className="text-white font-medium flex justify-between">
-                                  <div>{track.name}</div>
-                                  <button onClick={()=>addToJamList(track)}>Add</button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-                {status === "pending" && inputSong && (
-                    <div className="absolute z-10 w-full mt-2 bg-gray-800 rounded-lg shadow-xl border border-gray-700 px-4 py-3">
-                        <div className="text-white/70">Loading...</div>
-                    </div>
-                )}
+    <div className="min-h-screen bg-white">
+        {/* Navigation */}
+        <nav className="bg-white border-b border-gray-200">
+            <div className="container mx-auto px-6 py-4">
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold text-gray-900">Create Jam Session</h1>
+                    <Link to='/view-jams' className="text-indigo-600 hover:text-indigo-700 font-medium">View Jams</Link>
+                </div>
             </div>
+        </nav>
 
-            {songsInJam.length>0 && <form className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20" encType="multipart/form-data" onSubmit={handleSubmit}>
-            <div className="mb-5" >
-                <label className="block text-white text-lg font-semibold mb-2">Jam Name:</label>
-                 <input 
-                 className="w-full px-4 py-3 rounded-lg bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-purple-400 transition-colors" 
-                 placeholder="Enter Jam Name"
-                 value={jamName}
-                 onChange={(e)=>setJamName(e.target.value)}
-                 />
+        <div className="container mx-auto px-6 py-8">
+            <div className="max-w-3xl mx-auto">
+                <div className="relative mb-8">
+                    <label className="block text-gray-900 text-sm font-semibold mb-2">Search Songs</label>
+                    <div className="relative">
+                        <input 
+                            type="text"
+                            value={inputSong}
+                            onChange={(e)=>{
+                                setInputSong(e.target.value)
+                            }}
+                            className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-600"
+                            placeholder="Search for a song..."
+                        />
+                        {inputSong && (
+                            <button 
+                                onClick={()=>setInputSong("")}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-900"
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
+                   
+                    {data && data.length > 0 && (
+                        <div className="absolute z-10 w-full mt-2 bg-white border-2 border-gray-200 rounded-lg shadow-lg max-h-80 overflow-y-auto">
+                            {data.map((track:song, index:number) => (
+                                <div key={index} className="px-4 py-3 hover:bg-gray-50 border-b border-gray-200 last:border-b-0">
+                                    <div className="flex justify-between items-center">
+                                        <div className="text-gray-900">{track.name}</div>
+                                        <button 
+                                            onClick={()=>addToJamList(track)}
+                                            className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded"
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    {status === "pending" && inputSong && (
+                        <div className="absolute z-10 w-full mt-2 bg-white border-2 border-gray-200 rounded-lg px-4 py-3 shadow-lg">
+                            <div className="text-gray-500">Loading...</div>
+                        </div>
+                    )}
+                </div>
+
+                {songsInJam.length>0 && (
+                    <form className="bg-gray-50 rounded-lg p-6 border border-gray-200" encType="multipart/form-data" onSubmit={handleSubmit}>
+                        <div className="mb-6">
+                            <label className="block text-gray-900 text-sm font-semibold mb-2">Jam Name</label>
+                            <input 
+                                className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-600" 
+                                placeholder="Enter Jam Name"
+                                value={jamName}
+                                onChange={(e)=>setJamName(e.target.value)}
+                            />
+                        </div>
+                        
+                        <div className="mb-6">
+                            <label className="block text-gray-900 text-sm font-semibold mb-3">Songs ({songsInJam.length})</label>
+                            <div className="space-y-3">
+                                {songsInJam?.map((song,index)=>(
+                                    <div key={index} className="flex items-center gap-4 bg-white p-3 rounded-lg border border-gray-200">
+                                        <img src={song?.image[0].url} alt={song.name} className="w-12 h-12 rounded"/>
+                                        <p className="text-gray-900 flex-1">{song.name}</p>
+                                        <button 
+                                            type="button" 
+                                            onClick={()=>removeJamSong(song.id)}
+                                            className="text-gray-500 hover:text-red-600"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {QRCode && (
+                            <div className="mt-4 p-4 bg-white rounded-lg border-2 border-gray-200">
+                                <img src={QRCode} alt="QR Code" className="mx-auto"/>
+                            </div>
+                        )}
+                        
+                        {uniqueRoomId && (
+                            <div className="my-4 p-4 bg-white rounded-lg border-2 border-gray-200">
+                                <p className="text-sm text-gray-600 mb-1">Room Code:</p>
+                                <p className="text-gray-900 font-mono text-lg font-semibold">{uniqueRoomId}</p>
+                            </div>
+                        )}
+                        
+                        <div className="flex gap-3">
+                            <button 
+                                type="button" 
+                                onClick={()=>generateIdAndQRCode()}
+                                className="px-6 py-3 bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-900 rounded-lg font-medium"
+                            >
+                                Generate QR Code
+                            </button>
+                            <button 
+                                type="submit"
+                                className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg"
+                            >
+                                Create Jam
+                            </button>
+                        </div>
+                        
+                        
+                    </form>
+                )}
             </div>
-                <div>{songsInJam?.map((song,index)=>(
-                  <div key={index} className="flex justify-between mb-5">
-                     <p className="text-white">{song.name}</p>
-                     <br />
-                     <img src={song?.image[0].url} alt={song.name} className="w-16 h-16 rounded-md"/>
-                     <button type="button" onClick={()=>{
-                        removeJamSong(song.id)
-                        // console.log(song,"song to remove")
-                     }}>Remove</button>
-                  </div>
-                ))}</div>
-                <button type="button" onClick={()=>generateIdAndQRCode()}>Generate QR Code</button>
-                {QRCode && <img src={QRCode} alt="QR Code" />}
-                {uniqueRoomId && <div>unqiue Room id : {uniqueRoomId}</div>}
-                <input type="submit"/>
-            </form>}
         </div>
     </div>
   )

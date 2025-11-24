@@ -68,73 +68,75 @@ const ViewJams = () => {
 
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-900 via-indigo-900 to-purple-800 p-6">
-       <div className="max-w-4xl mx-auto">
-         <header className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
-           <h2 className="text-2xl font-semibold text-white">Jams</h2>
-
-           {role=="admin" ? 
-           <div className="flex gap-3">
-                <button
-                  className="px-4 py-2 bg-white/10 text-white rounded-md border border-white/20 hover:bg-white/20 transition"
-                  onClick={()=>{
-                      setShowMyJams(true)
-                      setShowAllJams(false)
-                  }}>View My Jams</button>
-                <button
-                  className="px-4 py-2 bg-white/10 text-white rounded-md border border-white/20 hover:bg-white/20 transition"
-                  onClick={()=>{
-                      setShowAllJams(true)
-                      setShowMyJams(false);
-                  }}>View All Jams</button>
-           </div>
-           :
-           <div className="text-white/90 cursor-pointer" onClick={()=>setShowAllJams(true)}>View All Jams</div>
-           
-           }
-         </header>
-
-       {showMyJams && 
-       
-          data.length>0 && data.map((jam:jamData)=>(
-            <div className="mb-6 bg-white/5 border border-white/10 rounded-lg p-4" key={jam.id}>
-                <div className="text-white font-medium text-lg mb-3" >{jam.jamname}</div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {jam.songslist.map((song)=>(
-                    <div className="flex items-center gap-4 bg-white/3 p-3 rounded-md" key={song.id}>
-                        <img src={song.image[0].url} alt={song.name} className="w-20 h-20 object-cover rounded-md"/>
-                        <div className="text-white">
-                          <div className="font-semibold">{song.name}</div>
-                        </div>
+    <div className="min-h-screen bg-white">
+        {/* Navigation */}
+        <nav className="bg-white border-b border-gray-200">
+            <div className="container mx-auto px-6 py-4">
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold text-gray-900">Jam Sessions</h1>
+                    {role=="admin" ? 
+                    <div className="flex gap-3">
+                        <button
+                            className={`px-4 py-2 rounded-md font-medium transition-colors ${showMyJams ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'}`}
+                            onClick={()=>{
+                                setShowMyJams(true)
+                                setShowAllJams(false)
+                            }}>My Jams</button>
+                        <button
+                            className={`px-4 py-2 rounded-md font-medium transition-colors ${showAllJams ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'}`}
+                            onClick={()=>{
+                                setShowAllJams(true)
+                                setShowMyJams(false);
+                            }}>All Jams</button>
                     </div>
-                  ))}
+                    :
+                    <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700" onClick={()=>setShowAllJams(true)}>View All Jams</button>
+                    }
                 </div>
             </div>
-          ))
-       
-       }
-       {showAllJams &&
-         <div className="text-white/90 p-4 bg-white/5 border border-white/10 rounded-md">
-            {allJams && allJams.length>0 ? allJams.map((jam:alljamData)=>(
-                <div key={jam.id} className="mb-6">
-                    <div className="text-white font-medium text-lg mb-3">{jam.jamname} <span className="text-sm text-white/70">by {jam.username} </span></div>  
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {jam.songslist.map((song)=>(
-                            <div key={song.id} className="flex items-center gap-4 bg-white/3 p-3 rounded-md" >
-                                <img src={song.image[0].url} alt={song.name} className="w-20 h-20 object-cover rounded-md"/>
-                                <div className="text-white">
-                                  <div className="font-semibold">{song.name}</div>
+        </nav>
+
+        <div className="container mx-auto px-6 py-8">
+            <div className="max-w-6xl mx-auto">
+                {showMyJams && 
+                
+                    data.length>0 && data.map((jam:jamData)=>(
+                        <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-6" key={jam.id}>
+                            <div className="text-gray-900 font-semibold text-xl mb-4">{jam.jamname}</div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {jam.songslist.map((song)=>(
+                                    <div className="flex items-center gap-3 bg-white p-3 rounded-lg border border-gray-200" key={song.id}>
+                                        <img src={song.image[0].url} alt={song.name} className="w-16 h-16 object-cover rounded"/>
+                                        <div className="text-gray-900 text-sm font-medium">{song.name}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))
+                
+                }
+                {showAllJams && (
+                    <div className="space-y-6">
+                        {allJams && allJams.length>0 ? allJams.map((jam:alljamData)=>(
+                            <div key={jam.id} className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="text-gray-900 font-semibold text-xl">{jam.jamname}</div>
+                                    <div className="text-gray-500 text-sm">by <span className="text-indigo-600">{jam.username}</span></div>
+                                </div>  
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {jam.songslist.map((song)=>(
+                                        <div key={song.id} className="flex items-center gap-3 bg-white p-3 rounded-lg border border-gray-200">
+                                            <img src={song.image[0].url} alt={song.name} className="w-16 h-16 object-cover rounded"/>
+                                            <div className="text-gray-900 text-sm font-medium">{song.name}</div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                        ))}
+                        )):<div className="text-center text-gray-500 py-12">No jams found.</div>}
                     </div>
-                </div>
-            )):<div className="text-white/70">No jams found.</div>}
-         </div>
-       }
-
-   
-       </div>
+                )}
+            </div>
+        </div>
     </div>
   )
 }

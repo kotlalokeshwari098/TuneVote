@@ -65,68 +65,87 @@ const Signup = () => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Create your account</h2>
-          <p className="mt-2 text-sm text-gray-600">Join PrepEase and start your preparation journey</p>
+    <div className="min-h-screen bg-white flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
+          <p className="text-gray-600">Sign up to start creating jam sessions</p>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6 bg-white p-8 shadow-lg rounded-lg">
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
-              <input 
-                id="email"
-                type="email"
-                {...register("email")}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2 border"
-              />
-              {errors.email && <div className="mt-1 text-sm text-red-600">{errors.email.message}</div>}
-            </div>
-            
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-              <input 
-                id="password"
-                type="password"
-                {...register("password")}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2 border"
-              />
-              {errors.password && <div className="mt-1 text-sm text-red-600">{errors.password.message}</div>}
-            </div>
 
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
-              <input 
-                id="username"
-                type="text"
-                {...register("username")}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2 border"      
-              />
-              {errors.username && <div className="mt-1 text-sm text-red-600">{errors.username.message}</div>}
-            </div>
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="bg-gray-50 rounded-lg p-8 border border-gray-200">
+          <div className="mb-6">
+            <label htmlFor="username" className="block text-gray-900 text-sm font-semibold mb-2">Username</label>
+            <input 
+              id="username"
+              type="text"
+              {...register("username")}
+              className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-600"
+              placeholder="Choose a username"
+            />
+            {errors.username && (
+              <p className="mt-2 text-sm text-red-600">{errors.username.message}</p>
+            )}
           </div>
 
-          <div>
-            <button 
-              disabled={mutation.isPending} 
-              type="submit" 
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300 transition-colors duration-200"
-            >
-              {mutation.isPending ? "Submitting..." : "Sign up"}
-            </button>
+          <div className="mb-6">
+            <label htmlFor="email" className="block text-gray-900 text-sm font-semibold mb-2">Email</label>
+            <input 
+              id="email"
+              type="email"
+              {...register("email")}
+              className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-600"
+              placeholder="Enter your email"
+            />
+            {errors.email && (
+              <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
+            )}
           </div>
           
-          {errors.root && <div className="p-3 text-center text-sm bg-red-50 text-red-700 rounded-md">{errors.root.message}</div>}
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-gray-900 text-sm font-semibold mb-2">Password</label>
+            <input 
+              id="password"
+              type="password"
+              {...register("password")}
+              className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-600"
+              placeholder="Create a password (min 8 characters)"
+            />
+            {errors.password && (
+              <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
+            )}
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={mutation.isPending}
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold rounded-lg transition-colors"
+          >
+            {mutation.isPending ? "Creating account..." : "Sign Up"}
+          </button>
           
-          <div className="text-center text-sm">
-            <p className="text-gray-600">
-              Already have an account? 
-            
-              <Link to='/signin' className="font-medium text-blue-600 hover:text-blue-500">signin</Link>
+          {errors.root && (
+            <div className="mt-4 p-3 text-center text-sm bg-red-50 text-red-700 rounded-md border border-red-200">
+              {errors.root.message}
+            </div>
+          )}
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-600 text-sm">
+              Already have an account?{' '}
+              <Link to='/signin' className="text-indigo-600 hover:text-indigo-700 font-semibold">
+                Sign in
+              </Link>
             </p>
           </div>
         </form>
+
+        <div className="mt-6 text-center">
+          <Link to="/" className="text-gray-600 hover:text-gray-900 text-sm">
+            ← Back to home
+          </Link>
+        </div>
       </div>
     </div>
   )

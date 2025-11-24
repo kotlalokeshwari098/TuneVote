@@ -46,76 +46,83 @@ const JoinJam = () => {
     };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-white text-center mb-8">Join a Jam</h1>
-        
-        {/* Search Bar */}
-        <div className="max-w-2xl mx-auto mb-10">
-          <input
-            type="text"
-            placeholder="Search jams by name or creator..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-6 py-4 rounded-xl bg-white/10 border-2 border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-purple-400 transition-colors text-lg"
-          />
+    <div className="min-h-screen bg-white">
+        {/* Navigation */}
+        <nav className="bg-white border-b border-gray-200">
+            <div className="container mx-auto px-6 py-4">
+                <h1 className="text-2xl font-bold text-gray-900">Join a Jam Session</h1>
+            </div>
+        </nav>
+
+        <div className="container mx-auto px-6 py-8">
+            <div className="max-w-7xl mx-auto">
+                {/* Search Bar */}
+                <div className="max-w-2xl mb-10">
+                    <input
+                        type="text"
+                        placeholder="Search by jam name or creator..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-600"
+                    />
+                </div>
+
+                {/* Jams Grid */}
+                {filteredJams && filteredJams.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredJams.map((jam: JamData) => (
+                            <div
+                                key={jam.id}
+                                className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:border-indigo-600 transition-colors"
+                            >
+                                {/* Jam Header */}
+                                <div className="mb-4">
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-1">{jam.jamname}</h3>
+                                    <p className="text-gray-500 text-sm">
+                                        by <span className="text-indigo-600 font-medium">{jam.username}</span>
+                                    </p>
+                                </div>
+
+                                {/* Songs Preview */}
+                                <div className="mb-4">
+                                    <p className="text-gray-700 text-sm font-medium mb-3">
+                                        {jam.songslist.length} song{jam.songslist.length !== 1 ? 's' : ''}
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {jam.songslist.slice(0, 4).map((song) => (
+                                            <img
+                                                key={song.id}
+                                                src={song.image[0]?.url}
+                                                alt={song.name}
+                                                className="w-14 h-14 rounded object-cover border border-gray-200"
+                                                title={song.name}
+                                            />
+                                        ))}
+                                        {jam.songslist.length > 4 && (
+                                            <div className="w-14 h-14 rounded bg-gray-200 border border-gray-300 flex items-center justify-center text-gray-700 text-sm font-semibold">
+                                                +{jam.songslist.length - 4}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Join Button */}
+                                <button
+                                    onClick={() => handleJoinRoom(jam.uniqueroomjamid)}
+                                    className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors"
+                                >
+                                    Join Session
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center text-gray-500 py-16">
+                        {searchQuery ? "No jams match your search." : "No active jam sessions."}
+                    </div>
+                )}
+            </div>
         </div>
-
-        {/* Jams Grid */}
-        {filteredJams && filteredJams.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredJams.map((jam: JamData) => (
-              <div
-                key={jam.id}
-                className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:border-purple-400 transition-all hover:shadow-xl hover:shadow-purple-500/20"
-              >
-                {/* Jam Header */}
-                <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-white mb-2">{jam.jamname}</h3>
-                  <p className="text-white/70 text-sm">
-                    Created by <span className="font-semibold text-purple-300">{jam.username}</span>
-                  </p>
-                </div>
-
-                {/* Songs Preview */}
-                <div className="mb-4">
-                  <p className="text-white/80 text-sm font-semibold mb-2">
-                    {jam.songslist.length} Song{jam.songslist.length !== 1 ? 's' : ''}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {jam.songslist.slice(0, 3).map((song) => (
-                      <img
-                        key={song.id}
-                        src={song.image[0]?.url}
-                        alt={song.name}
-                        className="w-12 h-12 rounded-md object-cover"
-                        title={song.name}
-                      />
-                    ))}
-                    {jam.songslist.length > 3 && (
-                      <div className="w-12 h-12 rounded-md bg-white/20 flex items-center justify-center text-white text-xs font-bold">
-                        +{jam.songslist.length - 3}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Join Button */}
-                <button
-                  onClick={() => handleJoinRoom(jam.uniqueroomjamid)}
-                  className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold rounded-lg transition-all transform hover:scale-105 active:scale-95"
-                >
-                  Join Room
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center text-white/70 text-lg mt-20">
-            {searchQuery ? "No jams found matching your search." : "No jams available yet."}
-          </div>
-        )}
-      </div>
     </div>
   )
 }
