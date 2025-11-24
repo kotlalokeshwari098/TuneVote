@@ -14,3 +14,17 @@ export const useGetQRCode=()=>{
         }
     })
 }
+
+export const useGetSongsList=()=>{
+    const token=localStorage.getItem("token");
+        return useMutation({
+            mutationKey:['songslist'],
+            mutationFn:async(jamName:string | undefined)=>{
+               return await axiosInstance.get(`/api/jam/${jamName}`,{
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+               })
+            }
+        })
+}

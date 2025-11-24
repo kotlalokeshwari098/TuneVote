@@ -29,4 +29,21 @@ const validateRoomCode=async(req,res)=>{
     }
 }
 
-module.exports={createQRCode,validateRoomCode}
+const getJamList=async(req,res)=>{
+    const jamName=req.params.jamName;
+    console.log(req.params)
+   try {
+      const response=await pool.query(`SELECT songslist FROM jamsessions WHERE jamname=($1)`,[jamName])
+    //   console.log(response.rows[0])
+      const songslist=JSON.parse(response.rows[0].songslist)
+      return res.status(200).json(new ApiResponse(200,true,"Fetched Successfully!",songslist))
+   } catch (error) {
+     return res.status(500).json(new ApiResponse(500,false,"Internal Server Error"))
+   }
+}
+
+module.exports={
+    createQRCode,
+    validateRoomCode,
+    getJamList
+}

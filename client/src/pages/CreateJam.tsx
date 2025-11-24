@@ -7,11 +7,11 @@ import { useGetQRCode } from "../customhooks/createJamsMutations";
 
 type song={
    id:number,
-   image:[{
+   image:{
         height:number,
         url:string,
         width:number
-     }],
+     }[],
    name:string
 }
 
