@@ -43,10 +43,28 @@ const loginUser=async(req,res)=>{
         const {password:hashedPasswordFromDB,...userWithoutPassword}=user
         // console.log(userWithoutPassword)
 
+        res.cookie("jwt",token,{
+            maxAge:7 * 60 * 60 * 1000,
+            httpOnly: true,
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV != "development"
+        })
+
         return res.status(200).json(new ApiResponse(200,"true","Login successful",{token,userWithoutPassword}))
     } catch (error) {
 // console.log(error.message)
         return res.status(500).json(new ApiResponse(400,"false",error.message))
     }
 }
-module.exports={registerUser,loginUser}
+
+const logout=async(req,res)=>{
+     res.cookie("jwt","",{maxAge:0});
+     return res.status(200).json(new ApiResponse(200,"true","Logged Out Successfully!!"))
+}
+
+
+module.exports={
+    registerUser,
+    loginUser,
+    logout
+}
