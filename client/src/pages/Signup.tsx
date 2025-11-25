@@ -1,22 +1,26 @@
 import {useForm, type SubmitHandler} from "react-hook-form";
 import { z} from 'zod';
 import { Link } from "react-router";
-import  axiosInstance  from '../api/axiosInstance.ts'
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { authService } from "../services/authServices.ts";
+import { toast } from "sonner";
 
 
 const userFormSchema=z.object({
-  email:z.string().email(),
-  password:z.string().min(8),
-  username:z.string().min(4),
+  email:z.email({message:"Invalid email address"}),
+  password:z.string().min(8,{message:"Password must be at least 8 characters long"}),
+  username:z.string()
+               .regex(/^[a-z0-9_]+$/, {message: "Username can only contain lowercase letters, numbers and underscores"})
+               .min(4, {message: "Username is too short"})
+               .max(12, {message: "Username is too long"})
 })
 
 
 type UserForm=z.infer<typeof userFormSchema>;
 
 
-const Signup = () => {
+const Signup: React.FC = () => {
   const {
     handleSubmit,
     register,
@@ -30,38 +34,25 @@ const Signup = () => {
       },
       resolver:zodResolver(userFormSchema)
     });
-    //register binds with input fields and handlesubmit validates the input 
-
-    const submitUser=async(user:UserForm)=>{     
-      // console.log("user",user)
-      const formData={
-         username:user.username,
-         email:user.email,
-         password:user.password,
-         role:"admin"
-      }
-      const response=await axiosInstance.post('/api/auth/register',formData);
-      return response.data;
-
-    }
 
   const mutation=useMutation({
-    mutationFn:submitUser,
+    mutationFn:authService.register,
     //directly sends the user object to submitUser fn
     onSuccess:()=>{
-      alert("User Registered successfullyy!!");
+      toast.success("Accound created! You can now sign in!")
       localStorage.setItem("role","admin");
       reset();     
     },
     onError:(error)=>{
       const message=error.message||"Something went wrong!";
+      toast.error(message)
       setError("root",{message})
     }
   
   })
  
-  const onSubmit:SubmitHandler<UserForm>=async(user:UserForm)=>{
-      mutation.mutate(user);
+  const onSubmit:SubmitHandler<UserForm>=async(data:UserForm)=>{
+      mutation.mutate(data);
   }
 
   return (

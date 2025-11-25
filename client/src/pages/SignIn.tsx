@@ -1,14 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import {z} from 'zod';
-import axiosInstance from '../api/axiosInstance';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate, Link } from 'react-router';
 import { useUserContext } from '../customhooks/useUserContext';
+import { authService } from '../services/authServices';
+import { toast } from "sonner";
 
 const formschema=z.object({
-  email:z.string().email(),
-  password:z.string().min(5)
+  email:z.email({message:"Invalid email address"}),
+  password:z.string().min(8,{message:"Password must be at least 8 characters long"}),
 })
 
 type FormData=z.infer<typeof formschema>
@@ -23,30 +24,24 @@ const SignIn = () => {
     resolver:zodResolver(formschema)
   });
   const navigate=useNavigate();
-  const {user,setUser}=useUserContext()
+  const {setUser}=useUserContext()
 
-  const submitUser=async(user:FormData)=>{
-    const response=await axiosInstance.post('/api/auth/login',user);
-    return response.data;
-  }
-
-  console.log(user)
+  // console.log(user)
 
   const mutation=useMutation({
-     mutationFn:submitUser,
+     mutationFn:authService.login,
      onSuccess:(data)=>{
-      console.log(data)
       localStorage.setItem("token",data.data.token)
-      localStorage.setItem("role","admin")
-      alert("login successfull");
+      toast.success("Login Successfull!")
       const userData=data.data.userWithoutPassword
       localStorage.setItem("user",JSON.stringify(userData));
       setUser(userData);
       reset();
-      navigate('/create-jam')
+      return navigate('/create-jam')
      },
-     onError:()=>{
-      alert("Error! Please try again later!");
+     onError:(error)=>{
+      const message=error.response?.data?.message|| "Login failed!";
+      toast.error(message)
      }
   })
 

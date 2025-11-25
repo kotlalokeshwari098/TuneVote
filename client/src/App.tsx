@@ -1,4 +1,3 @@
-
 import { 
   createBrowserRouter,
   createRoutesFromElements,
@@ -13,6 +12,9 @@ import CreateJam from "./pages/CreateJam"
 import ViewJams from "./pages/ViewJams"
 import UserProtectWrapper from "./pages/UserProtectWrapper"
 import JamRoom from "./pages/JamRoom"
+
+
+import { Toaster } from "sonner"
 
 const routes=createBrowserRouter(
   createRoutesFromElements(
@@ -31,10 +33,11 @@ const routes=createBrowserRouter(
 )
 
 
-const App = () => {
+const App : React.FC = () => {
   return (
     <>    
       <RouterProvider router={routes}/>
+      <Toaster richColors position="top-right"/>
     </>
   )
 }
