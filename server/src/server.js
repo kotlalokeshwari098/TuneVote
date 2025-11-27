@@ -13,7 +13,8 @@ const server = http.createServer(app);
 let io = socketIo(server);
 io=socketIo(server,{
     cors:{
-        origin:"*"
+        origin:process.env.FROTEND_URL,
+        credentials:true
     }
 })
 

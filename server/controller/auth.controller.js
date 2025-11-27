@@ -57,14 +57,37 @@ const loginUser=async(req,res)=>{
     }
 }
 
+const profile=async(req,res)=>{
+    const userId=req.userId;
+    try { 
+        const response=await pool.query(`SELECT * FROM users WHERE id=($1)`,[userId])
+    } catch (error) {
+        return res.status(500).json(new ApiResponse(500,false,"Internal Server Error"))
+    }
+}
+
 const logout=async(req,res)=>{
-     res.cookie("jwt","",{maxAge:0});
-     return res.status(200).json(new ApiResponse(200,"true","Logged Out Successfully!!"))
+    try{
+       res.clearCookie("jwt", {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV != "development",
+        path: "/"  
+      });
+
+      return res.status(200).json(new ApiResponse(200,"true","Logged Out Successfully!!"))
+    }
+    catch(error){
+        console.log(error.message)
+        return res.status(500).json(new ApiResponse(500,"false",error.message))
+    }
+    
 }
 
 
 module.exports={
     registerUser,
     loginUser,
+    profile,
     logout
 }

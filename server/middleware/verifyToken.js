@@ -3,7 +3,7 @@ const jwt=require('jsonwebtoken')
 const verifyToken=(req,res,next)=>{
     // console.log(req.headers)
    try {
-    const token = req.headers["authorization"].split(" ")[1];
+    const token =  req.cookies.jwt || req.headers["authorization"].split(" ")[1];
     if (!token) {
       return res.status(403).json({ message: "No Token Provided" });
     }
