@@ -3,6 +3,8 @@ const {getAccessToken}=require("../utils/spotifyAuth.js")
 const axios=require("axios")
 const {uploadOnCloudinary}=require('../utils/cloudinary.js')
 const pool=require('../db/db.js')
+const redisClient =require('../src/redisClient.js')
+// console.log(redisClient)
 
 const searchSong=async(req,res)=>{
     // console.log(req.query.query)   
@@ -16,26 +18,52 @@ const searchSong=async(req,res)=>{
         const token = await getAccessToken();
         // console.log(token);
 
-        const response = await axios.get('https://api.spotify.com/v1/search', {
-        headers: { Authorization: `Bearer ${token}` },
-        params: {
-            q: songName,
-            type: 'track',
-            limit: 5
+        const searchFun=async()=>{
+           return await axios.get('https://api.spotify.com/v1/search', {
+            headers: { Authorization: `Bearer ${token}` },
+            params: {
+                q: songName,
+                type: 'track',
+                limit: 10
+            }
+          });
         }
-        });
-        // console.log(response.data)
         
-        const track = response.data.tracks.items.map((item)=>({
-             name:item.name,
+
+        let results=null;
+        let song=null;
+        const key=songName.toLowerCase()
+        const value=await redisClient.get(key)
+        // console.log(value)
+
+        if(value){
+            // console.log(value,"cache hit!!")
+            results=JSON.parse(value)
+            song=results.map((item)=>({
+            name:item.name,
+            id:item.id,
+            image:item.image
+        }))
+        }
+        else{
+          results=await searchFun()
+          song=results.data.tracks.items.map((item)=>({
+            name:item.name,
             id:item.id,
             image:item.album.images
-        }
-            
-        ));
+        }))
+        // console.log(results)
+        // console.log(song)
+        await redisClient.set(key, JSON.stringify(song),{
+            EX:500
+        })
+        // console.log("cache miss")
+    }
+        
         // console.log(track);
-        return res.status(200).json(new ApiResponse(200, true, 'Song fetched successfully', track));
+        return res.status(200).json(new ApiResponse(200, true, 'Song fetched successfully', song));
     } catch (error) {
+        // console.log(error.message)
         return res.status(500).json(new ApiResponse(500, false, 'Internal Server Error'));
     }
 
