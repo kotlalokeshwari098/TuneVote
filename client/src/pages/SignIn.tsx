@@ -31,7 +31,6 @@ const SignIn = () => {
   const mutation=useMutation({
      mutationFn:authService.login,
      onSuccess:(data)=>{
-      localStorage.setItem("token",data.data.token)
       toast.success("Login Successfull!")
       const userData=data.data.userWithoutPassword
       localStorage.setItem("user",JSON.stringify(userData));

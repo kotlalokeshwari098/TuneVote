@@ -6,13 +6,13 @@ import { useNavigate, Outlet  } from 'react-router';
 
 const UserProtectWrapper = () => {
     const navigate=useNavigate();
-    const token=localStorage.getItem('token');
+    const user=localStorage.getItem('user');
 
     useEffect(()=>{
-        if(!token){
+        if(!user){
         navigate('/signup');
         }
-    },[token,navigate])
+    },[user,navigate])
   
 
   return <Outlet />

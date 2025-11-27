@@ -17,16 +17,11 @@ interface JamData {
   username: string;
 }
 
-const JoinJam = () => {
+const JoinJam : React.FC = () => {
    const [searchQuery, setSearchQuery] = useState("");
-   const token = localStorage.getItem('token');
    
    const fetchAllJams = async () => {
-        const response = await axiosInstance.get('/api/songs/get-all-jams', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        const response = await axiosInstance.get('/api/songs/get-all-jams');
         return response.data.data;
     }
 

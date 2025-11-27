@@ -4,6 +4,7 @@ import axiosInstance from "../api/axiosInstance"
 import { useUserContext } from "../customhooks/useUserContext"
 import { useNavigate } from "react-router"
 import { AxiosError } from "axios"
+import Profile from "./Profile"
 
 interface jamData {
     id:number,
@@ -29,8 +30,6 @@ interface alljamData extends jamData{
 
 
 const ViewJams = () => {
-    const token=localStorage.getItem("token");
-    const role=localStorage.getItem("role");
     const {user}=useUserContext();
     const navigate=useNavigate();
 
@@ -41,25 +40,19 @@ const ViewJams = () => {
     const [roomCode,setRoomCode]=useState<string>("")
 
     const fetchAdminJamList=async()=>{
-        const response=await axiosInstance.get('/api/songs/get-jamList',{
-            headers:{
-                Authorization:`Bearer ${token}`
-        }})
+        const response=await axiosInstance.get('/api/songs/get-jamList')
         // console.log(response.data.data);
         return response.data.data;
     }
 
     const fetchAllJams=async()=>{
-        const response=await axiosInstance.get('/api/songs/get-all-jams',{
-            headers:{
-                Authorization:`Bearer ${token}`
-        }})
+        const response=await axiosInstance.get('/api/songs/get-all-jams')
         // console.log(response.data.data);
         return response.data.data;
     }
 
 
-    const {data}=useQuery({
+    const {data:myJams}=useQuery({
         queryKey:["jamlist"],
         queryFn:fetchAdminJamList
     })
@@ -91,38 +84,57 @@ const ViewJams = () => {
 
   return (
     <div className="min-h-screen bg-white">
-        {/* Navigation */}
+
         <nav className="bg-white border-b border-gray-200">
-            <div className="container mx-auto px-6 py-4">
+            <div className="max-w-6xl mx-auto px-4 py-3">
                 <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-gray-900">Jam Sessions</h1>
-                    {role=="admin" ? 
-                    <div className="flex gap-3">
-                        <button
-                            className={`px-4 py-2 rounded-md font-medium transition-colors ${showMyJams ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'}`}
-                            onClick={()=>{
-                                setShowMyJams(true)
-                                setShowAllJams(false)
-                            }}>My Jams</button>
-                        <button
-                            className={`px-4 py-2 rounded-md font-medium transition-colors ${showAllJams ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'}`}
-                            onClick={()=>{
-                                setShowAllJams(true)
-                                setShowMyJams(false);
-                            }}>All Jams</button>
-                    </div>
-                    :
-                    <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700" onClick={()=>setShowAllJams(true)}>View All Jams</button>
-                    }
+
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+                    Jam Sessions
+                </h1>
+ 
+                <div className="flex items-center gap-3">
+  
+                    <button
+                    onClick={() => {
+                        setShowMyJams(true);
+                        setShowAllJams(false);
+                    }}
+                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-all border 
+                        ${showMyJams
+                        ? "bg-indigo-600 text-white border-indigo-600 shadow-md"
+                        : "bg-white text-gray-700 hover:bg-gray-100 border-gray-300"
+                        }`}
+                    >
+                    My Jams
+                    </button>
+
+                    <button
+                    onClick={() => {
+                        setShowAllJams(true);
+                        setShowMyJams(false);
+                    }}
+                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-all border 
+                        ${showAllJams
+                        ? "bg-indigo-600 text-white border-indigo-600 shadow-md"
+                        : "bg-white text-gray-700 hover:bg-gray-100 border-gray-300"
+                        }`}
+                    >
+                    All Jams
+                    </button>
+
+                    <Profile />
+                </div>
                 </div>
             </div>
         </nav>
 
+
         <div className="container mx-auto px-6 py-8">
             <div className="max-w-6xl mx-auto">
-                {showMyJams && 
-                
-                    data.length>0 && data.map((jam:jamData)=>(
+                {showMyJams &&
+                 <div className="space-y-6">
+                    {myJams.length>0 ? myJams.map((jam:jamData)=>(
                         <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-6" key={jam.id}>
                             <div className="text-gray-900 font-semibold text-xl mb-4">{jam.jamname}</div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -133,8 +145,9 @@ const ViewJams = () => {
                                     </div>
                                 ))}
                             </div>
-                        </div>
-                    ))
+                        </div> 
+                    )):<div className="text-center text-gray-500 py-12">Create jams now!</div>}
+                     </div>
                 
                 }
                 {showAllJams && (
@@ -157,6 +170,7 @@ const ViewJams = () => {
                                     setShowEnterCode(prev=>!prev)
                                     setJamname(jam.jamname)
                                 }}
+                                className={`px-4 py-2 rounded-md font-medium transition-colors bg-indigo-600 text-white mt-5`}
                                     >join room</button>}
                             </div>
                         )):<div className="text-center text-gray-500 py-12">No jams found.</div>}

@@ -4,6 +4,8 @@ import axiosInstance from "../api/axiosInstance";
 import { Link } from "react-router";
 import { generateUniqueId } from "../utils/generateUniqueId";
 import { useGetQRCode } from "../customhooks/createJamsMutations";
+import Profile from "./Profile";
+
 
 type song={
    id:number,
@@ -22,7 +24,6 @@ const CreateJam = () => {
     const [jamName,setJamName]=useState("");
     const [QRCode,setQRCode]=useState("")
     const [uniqueRoomId,setUniqueRoomId]=useState<string>()
-    const token=localStorage.getItem("token")
 
     const getQrCode=useGetQRCode();
 
@@ -43,11 +44,7 @@ const CreateJam = () => {
         formData.append("songs",JSON.stringify(songsInJam))
         formData.append("roomId",uniqueRoomId)
         formData.append("qrcode",blob,"qr.png")
-        const response=await axiosInstance.post('/api/songs/create-jam',formData,{
-            headers:{
-                Authorization:`Bearer ${token}`
-            }
-        })
+        const response=await axiosInstance.post('/api/songs/create-jam',formData)
         // console.log(response,"responseeeuuu");
         return response.data.message;
     }
@@ -124,7 +121,10 @@ const CreateJam = () => {
             <div className="container mx-auto px-6 py-4">
                 <div className="flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-gray-900">Create Jam Session</h1>
-                    <Link to='/view-jams' className="text-indigo-600 hover:text-indigo-700 font-medium">View Jams</Link>
+                    <div className="flex gap-3 items-center">
+                       <Link to='/view-jams' className="text-indigo-600 hover:text-indigo-700 font-medium">View Jams</Link>
+                      <Profile />
+                    </div>  
                 </div>
             </div>
         </nav>
