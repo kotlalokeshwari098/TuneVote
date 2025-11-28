@@ -1,7 +1,7 @@
 const ApiResponse = require("../utils/ApiResponse")
 const QRCode =require("qrcode")
 const pool = require("../db/db.js");
-
+const redisClient =require('../src/redisClient.js')
 
 const createQRCode=async(req,res)=>{
     const {url}=req.body;
@@ -54,6 +54,8 @@ const endJamSession=async(req,res)=>{
         if(response.rows[0].length==0){
             return res.status(404).json(new ApiResponse(404,false,"Jam Session is not found"))
         }
+
+        await redisClient.del(`jam:${jamName}:chat`)
 
         return res.status(200).json(new ApiResponse(200,true,"Jam Session Ended Successfully!"));
     } catch (error) {
