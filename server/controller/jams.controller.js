@@ -46,8 +46,25 @@ const getJamList=async(req,res)=>{
    }
 }
 
+const endJamSession=async(req,res)=>{
+    const jamName=req.params.jamName;
+    try {
+        const response=await pool.query(`UPDATE jamsessions SET expires=($1) WHERE jamname=($2) RETURNING *`,[true,jamName])
+         
+        if(response.rows[0].length==0){
+            return res.status(404).json(new ApiResponse(404,false,"Jam Session is not found"))
+        }
+
+        return res.status(200).json(new ApiResponse(200,true,"Jam Session Ended Successfully!"));
+    } catch (error) {
+        // console.log(error.message);
+        return res.status(500).json(new ApiResponse(500,false,"Internal Server Error"));
+    }
+}
+
 module.exports={
     createQRCode,
     validateRoomCode,
-    getJamList
+    getJamList,
+    endJamSession
 }

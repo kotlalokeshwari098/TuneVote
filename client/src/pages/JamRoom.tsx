@@ -1,11 +1,12 @@
 // import { io} from 'socket.io-client';
-import { useParams} from 'react-router';
+import { useNavigate, useParams} from 'react-router';
 import { useUserContext } from '../customhooks/useUserContext';
-import { useGetSongsList } from '../customhooks/createJamsMutations';
+import { useGetSongsList, useEndJamSession } from '../customhooks/createJamsMutations';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs'
 import { useContext } from 'react';
 import { SocketContext } from '../context/socket/SocketContext';
+import { toast } from 'sonner';
 
 interface Song {
   songslist:{
@@ -30,9 +31,12 @@ const JamRoom = () => {
      const [message,setMessage]=useState("");
      const [chatMessages,setChatMessages]=useState<message[]>([])
      const [roomJammers,setRoomJammers]=useState<number>(0);
+     const [endJamSessionAsk,setEndJamSessionAsk]=useState<boolean>(false);
+     const [loading,setLoading]=useState<boolean>(false);
     //  console.log(user)
      const username=user?.username;
      const socket = useContext(SocketContext)?.socket;
+     const navigate=useNavigate()
 
      useEffect(() => {
         if (!socket) return;
@@ -99,7 +103,21 @@ const JamRoom = () => {
     };
   }, [socket]); 
 
+   const response1=useEndJamSession();
+  const endJamSession=async()=>{
+     const response=await response1.mutateAsync(jamName)
+     if(response.data.status==200){
+       setLoading(true)
+      setTimeout(()=>{
+        setLoading(false)
+        toast.success(`${jamName} session ended!`)
+        navigate('/view-jams')
+      },2500)
 
+     }
+     console.log(response);
+  }
+ 
 
   return (
     <div className="min-h-screen bg-white">
@@ -112,9 +130,17 @@ const JamRoom = () => {
               <p className="text-sm text-gray-500 mt-1">Jam Session</p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 rounded-lg border border-green-200">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-green-700">{roomJammers} Live</span>
+              <div className="flex items-center gap-2 ">
+                <div className='flex items-center gap-2 px-4 py-2 bg-green-50 rounded-lg border border-green-200'>
+                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                   <span className="text-sm font-medium text-green-700">{roomJammers} Live</span>
+                </div>
+                {jamList?.created_by==user?.username && <div className='flex items-center gap-2 px-4 py-2 bg-red-50 rounded-lg border border-red-200'>
+                   <button 
+                     className="text-sm font-medium text-red-700"
+                     onClick={()=>setEndJamSessionAsk(prev=>!prev)}
+                    >End Session</button>
+                </div>}
               </div>
             </div>
           </div>
@@ -228,6 +254,66 @@ const JamRoom = () => {
               </div>
             </div>
           </div>
+
+          {endJamSessionAsk &&
+            <div className='fixed inset-0 flex items-center justify-center z-50'>
+              <div className='bg-white rounded-xl shadow-lg p-6 w-[90%] max-w-sm flex flex-col gap-3'>
+                <button 
+                className="text-right"
+                onClick={()=>setEndJamSessionAsk(prev=>!prev)}
+                >X</button>
+
+                <p className="text-lg font-semibold text-center">Are you sure! You want to end session?</p>
+
+               <div className='flex justify-center items-center gap-10'>
+
+                <button 
+                className="hover:bg-blue-600 hover:text-white p-2 rounded-md text-black"
+                onClick={()=>setEndJamSessionAsk(prev=>!prev)}>
+                  Back
+                </button>
+
+                <button onClick={()=>{
+                  endJamSession()
+                  setEndJamSessionAsk(prev=>!prev)
+                }}
+                  className="hover:bg-blue-600 hover:text-white p-2 rounded-md text-black">
+                  Confirm
+                </button>
+
+               </div>  
+              </div>
+            </div>
+          }
+
+
+          {loading &&
+            <div className='fixed inset-0 flex items-center justify-center z-50'>
+              <div className='bg-white rounded-xl shadow-lg p-6 w-[90%] max-w-sm flex flex-col justify-center items-center gap-3'>
+                  <svg
+                    className="animate-spin h-10 w-10 text-indigo-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4l-3 3 3 3h-4z"
+                    ></path>
+                  </svg>
+                  <p className="text-gray-700 font-medium">Ending Jam Session...</p>
+               </div>  
+            </div>
+           }
         </div>
       </div>
     </div>

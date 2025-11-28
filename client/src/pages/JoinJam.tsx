@@ -1,6 +1,6 @@
-import axiosInstance from "../api/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { jamService } from "../services/jamService";
 
 interface JamData {
   id: number;
@@ -20,14 +20,10 @@ interface JamData {
 const JoinJam : React.FC = () => {
    const [searchQuery, setSearchQuery] = useState("");
    
-   const fetchAllJams = async () => {
-        const response = await axiosInstance.get('/api/songs/get-all-jams');
-        return response.data.data;
-    }
 
     const { data: allJams } = useQuery({
         queryKey: ["alljams"],
-        queryFn: fetchAllJams
+        queryFn: jamService.allJams
     });
 
     const filteredJams = allJams?.filter((jam: JamData) =>

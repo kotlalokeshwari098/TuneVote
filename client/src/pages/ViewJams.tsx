@@ -4,6 +4,7 @@ import axiosInstance from "../api/axiosInstance"
 import { useNavigate } from "react-router"
 import { AxiosError } from "axios"
 import Profile from "./Profile"
+import { jamService } from "../services/jamService"
 
 interface jamData {
     id:number,
@@ -18,7 +19,8 @@ interface jamData {
                 width:number
             }[],
             name:string
-        }[]
+        }[],
+    expires:boolean
     
 }
 
@@ -28,7 +30,7 @@ interface alljamData extends jamData{
 
 
 
-const ViewJams = () => {
+const ViewJams : React.FC = () => {
     const navigate=useNavigate();
 
     const [showMyJams,setShowMyJams]=useState<boolean>(false);
@@ -43,12 +45,6 @@ const ViewJams = () => {
         return response.data.data;
     }
 
-    const fetchAllJams=async()=>{
-        const response=await axiosInstance.get('/api/songs/get-all-jams')
-        // console.log(response.data.data);
-        return response.data.data;
-    }
-
 
     const {data:myJams}=useQuery({
         queryKey:["jamlist"],
@@ -57,7 +53,7 @@ const ViewJams = () => {
 
     const {data:allJams}=useQuery({
         queryKey:["alljams"],
-        queryFn:fetchAllJams
+        queryFn:jamService.allJams
     })
 
     useEffect(()=>{
@@ -164,12 +160,21 @@ const ViewJams = () => {
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={()=>{
-                                    setShowEnterCode(prev=>!prev)
-                                    setJamname(jam.jamname)
-                                }}
-                                className={`px-4 py-2 rounded-md font-medium transition-colors bg-indigo-600 text-white mt-5`}
-                                    >join room</button>
+                                {jam.expires ? (
+                                    <div className="text-red-600 font-semibold mt-5">
+                                       Jam Wrapped Up
+                                    </div>
+                                    ) : (
+                                    <button
+                                        onClick={() => {
+                                        setShowEnterCode(prev => !prev);
+                                        setJamname(jam.jamname);
+                                        }}
+                                        className="px-6 py-2 mt-5 rounded-md font-medium transition-colors duration-300 bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 shadow-md"
+                                    >
+                                        Join Room
+                                    </button>
+                                    )}
                             </div>
                         )):<div className="text-center text-gray-500 py-12">No jams found.</div>}
                     </div>
