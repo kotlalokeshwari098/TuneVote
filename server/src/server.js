@@ -3,7 +3,8 @@ const http = require('http');
 const app = require('./index.js');
 const pool=require('../db/db.js')
 const formatMessage=require('../utils/messages.js')
-const userJoin=require('../utils/jammers.js')
+const userJoin=require('../utils/jammers.js');
+const redisClient = require("./redisClient.js");
 
 const port = process.env.PORT;
 const server = http.createServer(app);
@@ -38,12 +39,26 @@ io.on("connection", async (socket)=>{
       );
     });
 
-    socket.on("join_room",({username,jamName})=>{
+    socket.on("join_room",async({username,jamName})=>{
        const user=userJoin(socket.id,username,jamName);
 
-       socket.join(user.roomId)
+       socket.join(jamName)
 
        socket.emit("message",formatMessage("TuneVote","welcome to tunevote!!"))
+      //  console.log(socket.rooms); 
+       const messages=await redisClient.lRange(`jam:${jamName}:chat`,0,-1);
+       const parsedMessages=messages.map(msg=>JSON.parse(msg));
+
+       socket.emit("initial_chat", parsedMessages);
+    })
+    
+
+    socket.on("chat",async({jamName,username,message,timestamp})=>{
+       let chat=JSON.stringify({username,message,timestamp})
+       await redisClient.rPush(`jam:${jamName}:chat`,chat)
+
+       const chatFron = { username, message, timestamp };
+       io.to(jamName).emit("chat_message", chatFron);
     })
 
 
