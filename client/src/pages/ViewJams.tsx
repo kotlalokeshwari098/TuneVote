@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import axiosInstance from "../api/axiosInstance"
-import { useUserContext } from "../customhooks/useUserContext"
 import { useNavigate } from "react-router"
 import { AxiosError } from "axios"
 import Profile from "./Profile"
@@ -30,7 +29,6 @@ interface alljamData extends jamData{
 
 
 const ViewJams = () => {
-    const {user}=useUserContext();
     const navigate=useNavigate();
 
     const [showMyJams,setShowMyJams]=useState<boolean>(false);
@@ -166,12 +164,12 @@ const ViewJams = () => {
                                         </div>
                                     ))}
                                 </div>
-                                {jam.username!=user?.username && <button onClick={()=>{
+                                <button onClick={()=>{
                                     setShowEnterCode(prev=>!prev)
                                     setJamname(jam.jamname)
                                 }}
                                 className={`px-4 py-2 rounded-md font-medium transition-colors bg-indigo-600 text-white mt-5`}
-                                    >join room</button>}
+                                    >join room</button>
                             </div>
                         )):<div className="text-center text-gray-500 py-12">No jams found.</div>}
                     </div>
