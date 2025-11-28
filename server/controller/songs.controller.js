@@ -1,5 +1,6 @@
 const ApiResponse = require("../utils/ApiResponse")
 const {getAccessToken}=require("../utils/spotifyAuth.js")
+const formatMessage=require('../utils/messages.js')
 const axios=require("axios")
 const {uploadOnCloudinary}=require('../utils/cloudinary.js')
 const pool=require('../db/db.js')
@@ -89,6 +90,8 @@ const createJam=async(req,res)=>{
 
         const response=await pool.query(`INSERT INTO jamsessions (user_id,jamname,songsList,qrcodeurl,qrcodepublicid,uniqueroomjamid) values($1,$2,$3,$4,$5,$6)`,[req.userId,name,JSON.stringify(songs),qrUrl,qrPublicId,roomId]);
 
+        const welcomeMessage=formatMessage("TuneVote",`Welcome to the ${name} 🎉`)
+        await redisClient.lPush(`jam:${name}:chat`, welcomeMessage);
 
         // console.log(response)
         return res.status(201).json(new ApiResponse(201,"true","Jam added successfully"))
