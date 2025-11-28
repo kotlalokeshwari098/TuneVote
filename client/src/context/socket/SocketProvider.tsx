@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useUserContext } from '../../customhooks/useUserContext';
@@ -10,18 +10,18 @@ interface SocketProviderProps {
   children: ReactNode;
 }
 
-// const socket = io('http://localhost:5656/');
+const SOCKET_URL =
+  import.meta.env.VITE_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:5656';
 
 const SocketProvider = ({children}:SocketProviderProps) => {
    const user=useUserContext()
   //  console.log(user)
-      const socketRef = useRef<Socket | null>(null);
-    // console.log('SocketProvider user:', user);
+   const [socket, setSocket] = useState<Socket | null>(null);
 
 useEffect(() => {
   if (!user.user?.id) return;
-  const socket = io("http://localhost:5656/");
-  socketRef.current = socket;
+  const socket = io(SOCKET_URL);
+  setSocket(socket)
 
   
     socket.on("connect", () => {
@@ -37,13 +37,12 @@ useEffect(() => {
 
    return () => {
       socket.disconnect(); 
-      socketRef.current = null;
     };
 }, [user.user?.id]);
 
 
   return (
-   <SocketContext.Provider value={{socket :socketRef.current}}>
+   <SocketContext.Provider value={{socket :socket}}>
      {children}
    </SocketContext.Provider>
   )
