@@ -8,27 +8,31 @@ import { useContext } from 'react';
 import { SocketContext } from '../context/socket/SocketContext';
 
 interface Song {
-  name: string;
-  id: string;
-  image: { url: string; height: number; width: number }[];
+  songslist:{
+    name: string;
+    id: string;
+    image: { url: string; height: number; width: number }[];
+  }[],
+  created_by:string  
 }
+
 
 interface message{
    username:string;
    message:string;
-   timestamp:string;
+   timestamp?:string;
 }
 
 const JamRoom = () => {
      const {jamName}=useParams();
      const {user}=useUserContext();
-     const [jamList,setJamList]=useState<Song[]>([])
+     const [jamList,setJamList]=useState<Song | null>(null)
      const [message,setMessage]=useState("");
      const [chatMessages,setChatMessages]=useState<message[]>([])
+     const [roomJammers,setRoomJammers]=useState<number>(0);
     //  console.log(user)
      const username=user?.username;
      const socket = useContext(SocketContext)?.socket;
-
 
      useEffect(() => {
         if (!socket) return;
@@ -39,7 +43,7 @@ const JamRoom = () => {
 
      const getAllJamList=async()=>{
       const response= await getJamList.mutateAsync(jamName);
-      console.log(response);
+      // console.log(response);
       setJamList(response.data.data)
      }
      
@@ -47,7 +51,7 @@ const JamRoom = () => {
       getAllJamList()
       },[])
 
-    console.log(jamList)
+    // console.log(jamList)
     useEffect(() => {
         if (!username || !jamName) return;
 
@@ -57,7 +61,7 @@ const JamRoom = () => {
     useEffect(() => {
       const handleMessage = (msg:message) => console.log(msg);
       const handleInitialChat = (msgs:message[]) =>{
-      console.log(msgs,"msgssss")
+      // console.log(msgs,"msgssss")
       setChatMessages(msgs);}
 
       socket?.on("message", handleMessage);
@@ -77,14 +81,17 @@ const JamRoom = () => {
 
 
     useEffect(() => {
-  if (!socket) return;
+    if (!socket) return;
 
     const handleChatMessage = (msg:message) => {
       setChatMessages(prev => [...prev, msg]);
-      console.log(msg, "updated msgggg");
+      // console.log(msg, "updated msgggg");
     };
 
     socket.on("chat_message", handleChatMessage);
+    socket.on("room_users",({count})=>{
+      setRoomJammers(count);
+    })
 
     
     return () => {
@@ -107,7 +114,7 @@ const JamRoom = () => {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 px-4 py-2 bg-green-50 rounded-lg border border-green-200">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-green-700">255 Live</span>
+                <span className="text-sm font-medium text-green-700">{roomJammers} Live</span>
               </div>
             </div>
           </div>
@@ -124,12 +131,12 @@ const JamRoom = () => {
             <div className="bg-gray-50 rounded-lg border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900">Song Queue</h2>
-                <span className="text-sm text-gray-500">{jamList?.length || 0} songs</span>
+                <span className="text-sm text-gray-500">{jamList?.songslist?.length || 0} songs</span>
               </div>
 
               <div className="space-y-3">
-                {jamList && jamList.length > 0 ? (
-                  jamList.map((song) => (
+                {jamList && jamList.songslist?.length > 0 ? (
+                  jamList.songslist.map((song) => (
                     <div key={song.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-indigo-300 transition-colors">
                       <div className="flex items-center gap-4">
                         {/* Album Art */}
@@ -142,7 +149,7 @@ const JamRoom = () => {
                         {/* Song Info */}
                         <div className="flex-1">
                           <h3 className="font-semibold text-gray-900 mb-1">{song.name}</h3>
-                          <p className="text-sm text-gray-500">Added by <span className="text-indigo-600 font-medium">{username || 'Unknown'}</span></p>
+                          <p className="text-sm text-gray-500">Added by <span className="text-indigo-600 font-medium">{jamList.created_by || 'Unknown'}</span></p>
                         </div>
 
                         {/* Upvote Button */}
@@ -174,7 +181,6 @@ const JamRoom = () => {
 
               {/* Chat Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {/* Message 1 */}
                 {chatMessages && chatMessages.map((msg)=>(
                   msg.username==username ?
                   <div className="flex gap-3 justify-end">

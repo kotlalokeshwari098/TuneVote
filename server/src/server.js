@@ -3,7 +3,7 @@ const http = require('http');
 const app = require('./index.js');
 const pool=require('../db/db.js')
 const formatMessage=require('../utils/messages.js')
-const userJoin=require('../utils/jammers.js');
+const {jammerJoin,getRoomCount}=require('../utils/jammers.js');
 const redisClient = require("./redisClient.js");
 
 const port = process.env.PORT;
@@ -40,9 +40,11 @@ io.on("connection", async (socket)=>{
     });
 
     socket.on("join_room",async({username,jamName})=>{
-       const user=userJoin(socket.id,username,jamName);
+       const user=jammerJoin(socket.id,username,jamName);
 
        socket.join(jamName)
+
+       const count=getRoomCount(io,jamName);
 
        socket.emit("message",formatMessage("TuneVote","welcome to tunevote!!"))
       //  console.log(socket.rooms); 
@@ -50,6 +52,7 @@ io.on("connection", async (socket)=>{
        const parsedMessages=messages.map(msg=>JSON.parse(msg));
 
        socket.emit("initial_chat", parsedMessages);
+       io.to(jamName).emit("room_users",{count});
     })
     
 

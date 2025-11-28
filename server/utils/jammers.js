@@ -17,4 +17,13 @@ const jammerJoin = (id, username, jamName) => {
   return user;
 };
 
-module.exports = jammerJoin;
+
+const getRoomCount = (io,roomName) => {
+  const room = io.sockets.adapter.rooms.get(roomName);
+  return room ? room.size : 0;
+};
+
+module.exports = {
+  jammerJoin,
+  getRoomCount
+};

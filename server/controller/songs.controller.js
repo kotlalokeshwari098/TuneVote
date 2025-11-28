@@ -90,7 +90,7 @@ const createJam=async(req,res)=>{
 
         const response=await pool.query(`INSERT INTO jamsessions (user_id,jamname,songsList,qrcodeurl,qrcodepublicid,uniqueroomjamid) values($1,$2,$3,$4,$5,$6)`,[req.userId,name,JSON.stringify(songs),qrUrl,qrPublicId,roomId]);
 
-        const welcomeMessage=formatMessage("TuneVote",`Welcome to the ${name} 🎉`)
+        const welcomeMessage=JSON.stringify({username:"TuneVote",message:`welcome to ${name}!!`})
         await redisClient.lPush(`jam:${name}:chat`, welcomeMessage);
 
         // console.log(response)
@@ -133,7 +133,7 @@ const getAllJams=async(req,res)=>{
     }
         catch (error) { 
         return res.status(500).json(new ApiResponse(500,"false","Internal Server Error"))
-    }``
+    }
 }
 
 
