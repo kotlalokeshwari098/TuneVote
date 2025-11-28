@@ -1,10 +1,11 @@
-import { io} from 'socket.io-client';
+// import { io} from 'socket.io-client';
 import { useParams} from 'react-router';
 import { useUserContext } from '../customhooks/useUserContext';
 import { useGetSongsList } from '../customhooks/createJamsMutations';
 import { useEffect, useState } from 'react';
-
-const socket=io("http://localhost:5656/")
+import dayjs from 'dayjs'
+import { useContext } from 'react';
+import { SocketContext } from '../context/socket/SocketContext';
 
 interface Song {
   name: string;
@@ -12,12 +13,27 @@ interface Song {
   image: { url: string; height: number; width: number }[];
 }
 
+interface message{
+   username:string;
+   message:string;
+   timestamp:string;
+}
+
 const JamRoom = () => {
      const {jamName}=useParams();
      const {user}=useUserContext();
      const [jamList,setJamList]=useState<Song[]>([])
+     const [message,setMessage]=useState("");
+     const [chatMessages,setChatMessages]=useState<message[]>([])
     //  console.log(user)
      const username=user?.username;
+     const socket = useContext(SocketContext)?.socket;
+
+
+     useEffect(() => {
+        if (!socket) return;
+      }, [socket]);
+
 
      const getJamList=useGetSongsList()
 
@@ -31,11 +47,52 @@ const JamRoom = () => {
       getAllJamList()
       },[])
 
-console.log(jamList)
-    socket.emit('join_room',{username,jamName})
-    socket.on("message", (msg) => {
-       console.log(msg)
-     })
+    console.log(jamList)
+    useEffect(() => {
+        if (!username || !jamName) return;
+
+        socket?.emit('join_room', { username, jamName });
+    }, [username, jamName,socket]);
+
+    useEffect(() => {
+      const handleMessage = (msg:message) => console.log(msg);
+      const handleInitialChat = (msgs:message[]) =>{
+      console.log(msgs,"msgssss")
+      setChatMessages(msgs);}
+
+      socket?.on("message", handleMessage);
+      socket?.on("initial_chat", handleInitialChat);
+
+      return () => {
+        socket?.off("message", handleMessage);
+        socket?.off("initial_chat", handleInitialChat);
+      };
+    }, [socket]);
+
+    const sendMessage = () => {
+      if (!message) return;
+      socket?.emit("chat", {jamName, username, message, timestamp: dayjs(Date.now()).format('HH:mm') });
+      setMessage(""); 
+    };
+
+
+    useEffect(() => {
+  if (!socket) return;
+
+    const handleChatMessage = (msg:message) => {
+      setChatMessages(prev => [...prev, msg]);
+      console.log(msg, "updated msgggg");
+    };
+
+    socket.on("chat_message", handleChatMessage);
+
+    
+    return () => {
+      socket.off("chat_message", handleChatMessage);
+    };
+  }, [socket]); 
+
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -118,40 +175,29 @@ console.log(jamList)
               {/* Chat Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {/* Message 1 */}
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-sm font-semibold">J</span>
+                {chatMessages && chatMessages.map((msg)=>(
+                  msg.username==username ?
+                  <div className="flex gap-3 justify-end">
+                  <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center shrink-0">
+                    <span className="text-white text-sm font-semibold">{msg?.username?.slice(0,1).toUpperCase()}</span>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">john_doe</p>
-                    <p className="text-sm text-gray-600 mt-1">Great playlist! 🎵</p>
-                    <span className="text-xs text-gray-400 mt-1">2:35 PM</span>
+                    <p className="text-sm font-medium text-gray-900">{msg.username}</p>
+                    <p className="text-sm text-gray-600 mt-1">{msg.message}</p>
+                    <span className="text-xs text-gray-400 mt-1">{msg.timestamp}</span>
                   </div>
-                </div>
-
-                {/* Message 2 */}
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-sm font-semibold">S</span>
+                </div>:
+                  <div className="flex gap-3">
+                  <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center shrink-0">
+                    <span className="text-white text-sm font-semibold">{msg?.username?.slice(0,1).toUpperCase()}</span>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">sarah_music</p>
-                    <p className="text-sm text-gray-600 mt-1">Love this song!</p>
-                    <span className="text-xs text-gray-400 mt-1">2:36 PM</span>
+                    <p className="text-sm font-medium text-gray-900">{msg.username}</p>
+                    <p className="text-sm text-gray-600 mt-1">{msg.message}</p>
+                    <span className="text-xs text-gray-400 mt-1">{msg.timestamp}</span>
                   </div>
-                </div>
-
-                {/* Message 3 */}
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-sm font-semibold">M</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">mike_rocks</p>
-                    <p className="text-sm text-gray-600 mt-1">Can we add more rock songs? 🎸</p>
-                    <span className="text-xs text-gray-400 mt-1">2:37 PM</span>
-                  </div>
-                </div>
+                </div>))
+                }
               </div>
 
               {/* Chat Input */}
@@ -159,10 +205,15 @@ console.log(jamList)
                 <div className="flex gap-2">
                   <input 
                     type="text" 
+                    value={message}
+                    onChange={(e)=>{
+                      setMessage(e.target.value)
+                    }}
                     placeholder="Type a message..."
                     className="flex-1 px-4 py-2 bg-white border-2 border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-600 text-sm"
                   />
-                  <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
+
+                  <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors" type='submit' onClick={()=>sendMessage()}>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
