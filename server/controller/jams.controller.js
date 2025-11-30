@@ -36,7 +36,7 @@ const getJamList=async(req,res)=>{
       const resp=await pool.query(`SELECT u.username as created_by, js.songslist FROM jamsessions js JOIN users u on u.id=js.user_id AND js.jamname=($1)`,[jamName])
     //   console.log(resp.rows[0])
 
-      const songslist=JSON.parse(resp.rows[0].songslist)
+      const songslist=resp.rows[0].songslist;
 
       return res.status(200).json(new ApiResponse(200,true,"Fetched Successfully!",{songslist,created_by:resp.rows[0].created_by}))
 
@@ -64,9 +64,22 @@ const endJamSession=async(req,res)=>{
     }
 }
 
+const songsVotes=async(req,res)=>{
+    const jamName=req.params.jamName;
+    // console.log(jamName,"songsvoteee")
+    try {
+        const response=await redisClient.zRangeWithScores(`jam:${jamName}:votes`, 0, -1, { WITHSCORES: true });
+        // console.log(response,"ressss")
+        return res.status(200).json(new ApiResponse(200,true,"Fetched Successfully",response));
+    } catch (error) {
+        return res.status(500).json(new ApiResponse(500,false,"Internal Server Error"));
+    }
+}
+
 module.exports={
     createQRCode,
     validateRoomCode,
     getJamList,
-    endJamSession
+    endJamSession,
+    songsVotes
 }

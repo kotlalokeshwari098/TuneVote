@@ -71,8 +71,10 @@ const searchSong=async(req,res)=>{
 }
 
 const createJam=async(req,res)=>{
-    // console.log(req.body);
-    const {name,songs,roomId}=req.body;
+    let {name,roomId}=req.body;
+    const songsData = typeof req.body.songs === "string" ? JSON.parse(req.body.songs) : req.body.songs;
+
+    // console.log(songs,"songssss")
     try {
         let qrUrl="";
         let qrPublicId="";
@@ -88,10 +90,23 @@ const createJam=async(req,res)=>{
           qrPublicId = uploadResult.public_id;
         }
 
-        const response=await pool.query(`INSERT INTO jamsessions (user_id,jamname,songsList,qrcodeurl,qrcodepublicid,uniqueroomjamid) values($1,$2,$3,$4,$5,$6)`,[req.userId,name,JSON.stringify(songs),qrUrl,qrPublicId,roomId]);
+        const response=await pool.query(`INSERT INTO jamsessions (user_id,jamname,songsList,qrcodeurl,qrcodepublicid,uniqueroomjamid) values($1,$2,$3,$4,$5,$6)`,[req.userId,name,JSON.stringify(songsData),qrUrl,qrPublicId,roomId]);
 
         const welcomeMessage=JSON.stringify({username:"TuneVote",message:`welcome to ${name}!!`})
         await redisClient.lPush(`jam:${name}:chat`, welcomeMessage);
+
+        //to store the vote count of each song with id
+        await Promise.all(
+            songsData.map((song) => {
+                if (!song.id) {
+                console.error("Missing ID in song:", song);
+                throw new Error("Song ID is missing");
+                }
+                return redisClient.zAdd(`jam:${name}:votes`, [
+            { score: 0, value: song.id }
+            ]);
+          })
+        );
 
         // console.log(response)
         return res.status(201).json(new ApiResponse(201,"true","Jam added successfully"))
@@ -101,37 +116,35 @@ const createJam=async(req,res)=>{
     }
 }
 
-const getJamList=async(req,res)=>{
-    try {
-        const response=await pool.query(`SELECT * FROM jamsessions WHERE user_id=($1)`,[req.userId])
-        // console.log(response.rows)
+const getJamList = async (req, res) => {
+  try {
+    const resp = await pool.query(
+      "SELECT * FROM jamsessions WHERE user_id = ($1)",
+      [req.userId]
+    );
+    // console.log(resp.rows)
 
 
-        const response1=response.rows.map((r)=>{
-            if(r.songslist) return {...r,songslist:(JSON.parse(r.songslist))}
-            else return r
-        })
+    return res.status(201).json(
+      new ApiResponse(201, "true", "Fetched successfully!!", resp.rows)
+    );
+  } catch (err) {
+    // console.log(err.message);
+    return res.status(500).json(
+      new ApiResponse(500, "false", "Internal Server Error")
+    );
+  }
+};
 
-        // console.log(Array.isArray(response1[0].songslist))  // true
-        // console.log(response1[0].songslist[0].name)   
-        return res.status(201).json(new ApiResponse(201,"true","Fetched successfully!!",response1))
-    } catch (error) {
-        return res.status(500).json(new ApiResponse(500,"false","Internal Server Error"))
-    }
-}
 
 const getAllJams=async(req,res)=>{
     try {
         const response=await pool.query(`SELECT jamsessions.*, u.username FROM jamsessions JOIN users u ON jamsessions.user_id = u.id`)
-        // console.log(response.rows)
-        const response1=response.rows.map((r)=>{
-            if(r.songslist) return {...r,songslist:(JSON.parse(r.songslist))}
-            else return r
-        })
         
-        return res.status(201).json(new ApiResponse(201,"true","Fetched successfully!!",response1))
+        return res.status(201).json(new ApiResponse(201,"true","Fetched successfully!!",response.rows))
     }
         catch (error) { 
+        // console.log(error.message)
         return res.status(500).json(new ApiResponse(500,"false","Internal Server Error"))
     }
 }

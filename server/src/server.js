@@ -64,7 +64,25 @@ io.on("connection", async (socket)=>{
        io.to(jamName).emit("chat_message", chatFron);
     })
 
+    socket.on("upvote_song_id",async({songid,userid,jamName})=>{
 
+      let resp=await redisClient.zRangeWithScores(`jam:${jamName}:votes`, 0, -1, { WITHSCORES: true });
+
+
+      const resp1=await redisClient.SISMEMBER(`jam:${jamName}:song:${songid}`,userid);
+      //  console.log(resp1,"resp1")
+
+       if(resp1==0){
+         const user=await redisClient.SADD(`jam:${jamName}:song:${songid}`,userid);
+
+         await redisClient.ZINCRBY(`jam:${jamName}:votes`,1,songid)
+         resp= await redisClient.zRangeWithScores(`jam:${jamName}:votes`, 0, -1, { WITHSCORES: true });
+
+       }
+
+       io.to(jamName).emit("upvote_updated_count",resp);
+    })
+    
     socket.on("disconnect", () => {
       console.log(`Client disconnected: ${socket.id}`);
     });

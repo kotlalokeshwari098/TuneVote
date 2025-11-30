@@ -7,12 +7,14 @@ import dayjs from 'dayjs'
 import { useContext } from 'react';
 import { SocketContext } from '../context/socket/SocketContext';
 import { toast } from 'sonner';
+import axiosInstance from '../api/axiosInstance';
 
 interface Song {
   songslist:{
     name: string;
     id: string;
     image: { url: string; height: number; width: number }[];
+    vote:number;
   }[],
   created_by:string  
 }
@@ -24,6 +26,11 @@ interface message{
    timestamp?:string;
 }
 
+interface songsVote {
+  value:string;
+  score:number
+}
+
 const JamRoom = () => {
      const {jamName}=useParams();
      const {user}=useUserContext();
@@ -33,6 +40,9 @@ const JamRoom = () => {
      const [roomJammers,setRoomJammers]=useState<number>(0);
      const [endJamSessionAsk,setEndJamSessionAsk]=useState<boolean>(false);
      const [loading,setLoading]=useState<boolean>(false);
+     const [songVoteData,setSongVoteData]=useState<songsVote[]>();
+     const [updatedJamList,setUpdatedJamList]=useState(jamList);
+     const [createdBy,setCreatedBy]=useState(jamList?.created_by)
     //  console.log(user)
      const username=user?.username;
      const socket = useContext(SocketContext)?.socket;
@@ -117,6 +127,47 @@ const JamRoom = () => {
      }
      console.log(response);
   }
+
+  const changeUpvoteForSong=(songid:string,userid:string)=>{
+    console.log(songid,userid,"upvote clicked")
+     socket?.emit("upvote_song_id",{songid:songid,userid:JSON.stringify(userid),jamName:jamName})
+    }
+
+    useEffect(()=>{
+      if(!socket) return;
+      socket?.on("upvote_updated_count",(data)=>{
+        console.log(data)
+        setSongVoteData(data)
+        
+      })
+    return ()=>{
+      socket.off("upvote_updated_count")
+
+    }
+    },[socket,jamList])
+
+    useEffect(()=>{
+      const getUpvoteData=async()=>{
+        const response=await axiosInstance.get(`/api/jam/songs-vote/${jamName}`,);
+        setSongVoteData(response.data.data)
+      }
+      getUpvoteData();
+    },[jamList,jamName])
+
+    useEffect(()=>{
+      // console.log(songVoteData)
+      // console.log(jamList)
+       const updatedList=jamList?.songslist?.map((song)=>{
+        // console.log(song)
+         return (song.id==(songVoteData?.find((item)=>song?.id===item?.value))?.value)?{...song,vote:(songVoteData?.find((item)=>song?.id===item?.value))?.score}:{...song,vote:0}
+       })
+
+      if (!jamList?.songslist) return;
+
+      setUpdatedJamList({songslist:updatedList!,createdBy})
+
+    },[songVoteData,jamList,createdBy])
+ 
  
 
   return (
@@ -135,7 +186,7 @@ const JamRoom = () => {
                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                    <span className="text-sm font-medium text-green-700">{roomJammers} Live</span>
                 </div>
-                {jamList?.created_by==user?.username && <div className='flex items-center gap-2 px-4 py-2 bg-red-50 rounded-lg border border-red-200'>
+                {updatedJamList?.created_by==user?.username && <div className='flex items-center gap-2 px-4 py-2 bg-red-50 rounded-lg border border-red-200'>
                    <button 
                      className="text-sm font-medium text-red-700"
                      onClick={()=>setEndJamSessionAsk(prev=>!prev)}
@@ -157,12 +208,12 @@ const JamRoom = () => {
             <div className="bg-gray-50 rounded-lg border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900">Song Queue</h2>
-                <span className="text-sm text-gray-500">{jamList?.songslist?.length || 0} songs</span>
+                <span className="text-sm text-gray-500">{updatedJamList?.songslist?.length || 0} songs</span>
               </div>
 
               <div className="space-y-3">
-                {jamList && jamList.songslist?.length > 0 ? (
-                  jamList.songslist.map((song) => (
+                {updatedJamList && updatedJamList.songslist?.length > 0 ? (
+                  updatedJamList.songslist.map((song) => (
                     <div key={song.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-indigo-300 transition-colors">
                       <div className="flex items-center gap-4">
                         {/* Album Art */}
@@ -175,15 +226,20 @@ const JamRoom = () => {
                         {/* Song Info */}
                         <div className="flex-1">
                           <h3 className="font-semibold text-gray-900 mb-1">{song.name}</h3>
-                          <p className="text-sm text-gray-500">Added by <span className="text-indigo-600 font-medium">{jamList.created_by || 'Unknown'}</span></p>
+                          <p className="text-sm text-gray-500">Added by <span className="text-indigo-600 font-medium">{createdBy || 'Unknown'}</span></p>
                         </div>
 
                         {/* Upvote Button */}
-                        <button className="flex flex-col items-center gap-1 px-4 py-2 bg-gray-50 hover:bg-indigo-50 border border-gray-200 hover:border-indigo-300 rounded-lg transition-colors group">
+                        <button 
+                        className="flex flex-col items-center gap-1 px-4 py-2 bg-gray-50 hover:bg-indigo-50 border border-gray-200 hover:border-indigo-300 rounded-lg transition-colors group"  
+                        onClick={()=>changeUpvoteForSong(song.id,user?.id)}>
                           <svg className="w-6 h-6 text-gray-600 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                           </svg>
-                          <span className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600">0</span>
+                          <div 
+                           className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600"
+                           
+                           >{song?.vote}</div>
                         </button>
                       </div>
                     </div>
