@@ -77,6 +77,57 @@ With TuneVote, users can:
 | ⚡ Testing | Artillery (Load testing)                             |
 
 
+## Getting Started
+
+1️. Clone the repository
+```
+git clone https://github.com/your-username/TuneVote.git
+cd TuneVote
+```
+
+2️. Set up environment variables
+
+
+Copy the example .env file:
+```
+cp .env.example .env
+```
+```
+Fill in your real secrets for:
+PostgreSQL (PGUSER, PGPASSWORD, PGDATABASE)
+Redis (REDIS_HOST, REDIS_PORT)
+JWT secret (JWT_SECRET)
+Spotify API (SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
+Cloudinary (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)
+```
+
+3️. Run with Docker Compose in background
+```
+docker compose up -d --build
+```
+```
+This builds and starts Postgres, Redis, backend server and frontend client.
+Postgres container automatically initializes tables from server/db/db-init/001-init.sql.
+Redis is ready for caching songs, votes and chats.
+```
+
+4️. Access the application
+```
+Frontend: http://localhost:5173
+```
+5️. Check services inside containers
+
+Postgres:
+```
+docker exec -it postgres-db psql -U $PGUSER -d $PGDATABASE
+\dt  # list tables
+SELECT * FROM users;  # sample query
+```
+Redis:
+```
+docker exec -it tunevote-redis redis-cli
+KEYS *  # list all keys
+```
 
 ## ⚠️ Notes
 
