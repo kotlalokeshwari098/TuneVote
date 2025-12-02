@@ -1,0 +1,75 @@
+version: '3'
+services:
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    container_name: postgres-db
+    environment: 
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./server/db/db-init:/docker-entrypoint-initdb.d
+    networks:
+      - tunevote-network
+
+  server:
+    build: ./server
+    restart: always
+    container_name: tunevote-server
+    ports:
+      - "5656:5656"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - NODE_ENV=development
+      - PORT=${PORT}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PGHOST=db
+      - PGUSER=${PGUSER}
+      - PGPASSWORD=${PGPASSWORD}
+      - PGDATABASE=${PGDATABASE}
+      - PGPORT=5432
+    depends_on:
+      - db
+      - redis
+    # volumes:
+    #   - .:/server
+    #   - /server/node_modules
+    networks:
+      - tunevote-network
+    
+  client:
+    build: ./client
+    container_name: tunevote-client
+    environment:
+      - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+    depends_on:
+      - server
+    ports:
+      - "5173:5173"
+    # volumes:
+    #   - ./client:/client
+    #   - /client/node_modules
+    networks:
+      - tunevote-network
+  
+  redis:
+    image: redis:latest
+    container_name: tunevote-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - tunevote-network
+
+volumes:
+  postgres-data:
+  redis-data:
+
+networks:
+  tunevote-network:
+    driver: bridge
