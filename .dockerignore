@@ -1,0 +1,20 @@
+# ignore dependencies — they will be installed inside container
+node_modules/
+
+# ignore local build outputs / artifacts
+client/node_modules/
+client/build/
+server/node_modules/
+server/dist/    
+server/build/   
+
+# ignore local config, env, logs, git stuff
+.env
+.env.*        
+.DS_Store
+.git
+.gitignore
+Dockerfile*
+docker-compose*.yaml
+README.md
+*.log
