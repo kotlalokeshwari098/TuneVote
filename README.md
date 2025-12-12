@@ -24,7 +24,6 @@ With TuneVote, users can:
 - 💾 Store jam sessions and songs for future sessions.
 
 
-
 ## 🚀 Features
 
 1. **🎼 Jam Session Management**
