@@ -1,6 +1,7 @@
-const ApiResponse = require("../utils/ApiResponse")
-const jwt=require('jsonwebtoken')
-const verifyToken=(req,res,next)=>{
+import ApiResponse from "../utils/ApiResponse.js";
+import jwt from 'jsonwebtoken';
+
+const verifyToken = (req, res, next) => {
     // console.log(req.headers)
    try {
     const token =  req.cookies.jwt || req.headers["authorization"].split(" ")[1];
@@ -19,4 +20,4 @@ const verifyToken=(req,res,next)=>{
   }
 }
 
-module.exports=verifyToken
+export default verifyToken;

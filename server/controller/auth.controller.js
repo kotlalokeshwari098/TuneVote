@@ -1,7 +1,7 @@
-const pool = require("../db/db.js");
-const ApiResponse=require('../utils/ApiResponse')
-const bcrypt=require('bcryptjs')
-const jwt = require('jsonwebtoken');
+import pool from "../db/db.js";
+import ApiResponse from '../utils/ApiResponse.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const registerUser=async(req,res)=>{
     const {email,password,username,role}=req.body
@@ -85,9 +85,9 @@ const logout=async(req,res)=>{
 }
 
 
-module.exports={
+export {
     registerUser,
     loginUser,
     profile,
     logout
-}
+};

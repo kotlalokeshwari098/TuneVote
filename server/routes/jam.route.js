@@ -1,13 +1,11 @@
-const express =require  ("express");
-const route=express.Router();
-const jamsController=require('../controller/jams.controller.js')
+import express from "express";
+const route = express.Router();
+import {createQRCode, validateRoomCode,getJamList, endJamSession, songsVotes} from '../controller/jams.controller.js'
 
+route.post('/generate-QR-Code',createQRCode)
+route.post('/:roomcode',validateRoomCode)
+route.get('/:jamName',getJamList)
+route.put('/end-session/:jamName',endJamSession)
+route.get('/songs-vote/:jamName',songsVotes)
 
-
-route.post('/generate-QR-Code',jamsController.createQRCode)
-route.post('/:roomcode',jamsController.validateRoomCode)
-route.get('/:jamName',jamsController.getJamList)
-route.put('/end-session/:jamName',jamsController.endJamSession)
-route.get('/songs-vote/:jamName',jamsController.songsVotes)
-
-module.exports=route;
+export default route;

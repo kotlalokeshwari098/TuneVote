@@ -1,7 +1,7 @@
-const ApiResponse = require("../utils/ApiResponse")
-const QRCode =require("qrcode")
-const pool = require("../db/db.js");
-const redisClient =require('../src/redisClient.js')
+import ApiResponse from "../utils/ApiResponse.js";
+import QRCode from "qrcode";
+import pool from "../db/db.js";
+import redisClient from '../src/redisClient.js';
 
 const createQRCode=async(req,res)=>{
     const {url}=req.body;
@@ -76,10 +76,10 @@ const songsVotes=async(req,res)=>{
     }
 }
 
-module.exports={
+export {
     createQRCode,
     validateRoomCode,
     getJamList,
     endJamSession,
     songsVotes
-}
+};

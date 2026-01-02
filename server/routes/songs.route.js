@@ -1,16 +1,14 @@
-const express =require  ("express");
-const route=express.Router();
-const songsController=require('../controller/songs.controller.js')
-const verifyToken=require('../middleware/verifyToken.js')
-const upload = require('../middleware/multer.middleware');
+import express from "express";
+const route = express.Router();
+import {searchSong,createJam,getAllJams,getJamList} from '../controller/songs.controller.js';
+import verifyToken from '../middleware/verifyToken.js';
+import upload from '../middleware/multer.middleware.js';
 
 
-route.get('/search-song',songsController.searchSong);
-route.post('/create-jam',verifyToken,upload.single('qrcode'),songsController.createJam);
-route.get('/get-jamList',verifyToken,songsController.getJamList);
-route.get('/get-all-jams',songsController.getAllJams);
+route.get('/search-song',searchSong);
+route.post('/create-jam',verifyToken,upload.single('qrcode'),createJam);
+route.get('/get-jamList',verifyToken,getJamList);
+route.get('/get-all-jams',getAllJams);
 
 
-
-
-module.exports=route;
+export default route;

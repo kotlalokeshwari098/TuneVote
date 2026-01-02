@@ -1,11 +1,10 @@
-const ApiResponse = require("../utils/ApiResponse")
-const {getAccessToken}=require("../utils/spotifyAuth.js")
-const formatMessage=require('../utils/messages.js')
-const axios=require("axios")
-const {uploadOnCloudinary}=require('../utils/cloudinary.js')
-const pool=require('../db/db.js')
-const redisClient =require('../src/redisClient.js')
-// console.log(redisClient)
+import ApiResponse from "../utils/ApiResponse.js";
+import { getAccessToken } from "../utils/spotifyAuth.js";
+import formatMessage from '../utils/messages.js';
+import axios from "axios";
+import { uploadOnCloudinary } from '../utils/cloudinary.js';
+import pool from '../db/db.js';
+import redisClient from '../src/redisClient.js';
 
 const searchSong=async(req,res)=>{
     // console.log(req.query.query)   
@@ -150,9 +149,9 @@ const getAllJams=async(req,res)=>{
 }
 
 
-module.exports={
+export {
     searchSong,
     createJam,
     getJamList,
     getAllJams
-}
+};

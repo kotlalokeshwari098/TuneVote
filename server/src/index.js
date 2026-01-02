@@ -1,8 +1,6 @@
-const express=require('express');
-const pool=require('../db/db.js')
-const cors=require('cors')
-const cookieParser=require('cookie-parser')
-
+import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 const app=express()
 app.use(cookieParser())
@@ -17,15 +15,14 @@ app.get('/',(req,res)=>{
     res.send('Hello World!');
 });
 
-const authRoutes = require('../routes/auth.route.js');
-const songRoutes=require('../routes/songs.route.js');
-const jamRoutes=require('../routes/jam.route.js')
+import authRoutes from '../routes/auth.route.js';
+import songRoutes from '../routes/songs.route.js';
+import jamRoutes from '../routes/jam.route.js';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/songs',songRoutes);
 app.use('/api/jam',jamRoutes)
 
 
-pool.connect().then(()=>console.log("database is connected!!!"))
 
-module.exports=app;
+export default app;
