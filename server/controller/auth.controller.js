@@ -9,7 +9,7 @@ const registerUser=async(req,res)=>{
     try {
         const userExist=await pool.query(`SELECT * FROM users WHERE email=($1)`,[email])
 
-        if(userExist.rows.length!==0) return res.status(409).json(new ApiResponse(409,"false","User already exits!"))
+        if(userExist.rows.length!==0) return res.status(409).json(new ApiResponse(409,"false","User already exists!"))
 
         const hashedPassword=bcrypt.hashSync(password,12)
 
@@ -30,14 +30,16 @@ const loginUser=async(req,res)=>{
     try {
         const response=await pool.query(`SELECT * FROM users WHERE email=($1)`,[email])
 
-        if(response.rows.length===0) return res.status(404).json(new ApiResponse(401,"error","User does not exists!"))
+        if(response.rows.length===0) return res.status(404).json(new ApiResponse(404,"false","User does not exists!"))
 
         const hashedPassword=response.rows[0].password
         const checkPassword=bcrypt.compareSync(password,hashedPassword)
 
         const id=response.rows[0].id;
         if(!checkPassword) return res.status(401).json(new ApiResponse(401,"false","Password is incorrect!"))
+
         const token=jwt.sign({id},process.env.JWT_SECRET,{ expiresIn: '2h' })
+        const refreshToken=jwt.sign({id},process.env.JWT_SECRET,{ expiresIn: '7d' })
 
         const user=response.rows[0]
         const {password:hashedPasswordFromDB,...userWithoutPassword}=user
@@ -45,6 +47,13 @@ const loginUser=async(req,res)=>{
 
         res.cookie("jwt",token,{
             maxAge:7 * 60 * 60 * 1000,
+            httpOnly: true,
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV != "development"
+        })
+
+        res.cookie("refreshToken",refreshToken,{
+            maxAge:7 * 24 * 60 * 60 * 1000,
             httpOnly: true,
             sameSite: 'strict',
             secure: process.env.NODE_ENV != "development"

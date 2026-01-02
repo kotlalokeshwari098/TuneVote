@@ -44,4 +44,10 @@ describe("Tests the register functionality", ()=>{
         expect(res.body).toHaveProperty("message","User registered successfully!")
      })
 
+     it("should not a user with existing email",async()=>{
+      const res=await request(app).post(endpoint).send(newUser)
+      expect(res.status).toBe(409)
+      expect(res.body).toHaveProperty("message","User already exists!")
+     })
+
 })
