@@ -1,9 +1,9 @@
-const axios = require('axios');
+import axios from "axios";
 
 let cachedToken = null;
 let tokenExpiry = null;
 
-async function getAccessToken() {
+export async function getAccessToken() {
   const now = Date.now();
 
   if (cachedToken && tokenExpiry && now < tokenExpiry) {
@@ -26,5 +26,3 @@ async function getAccessToken() {
 
   return cachedToken;
 }
-
-module.exports = { getAccessToken };

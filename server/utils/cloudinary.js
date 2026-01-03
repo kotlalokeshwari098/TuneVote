@@ -1,6 +1,8 @@
-require("dotenv").config();
-const cloudinary = require("cloudinary").v2;
-const fs = require("fs");
+import dotenv from "dotenv";
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
+
+dotenv.config();
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -17,7 +19,7 @@ if (
   console.error("Missing Cloudinary configuration. Please check your .env file.");
 }
 
-const uploadOnCloudinary = async (localFilePath) => {
+export const uploadOnCloudinary = async (localFilePath) => {
   try {
     if (!localFilePath) return null;
 
@@ -35,9 +37,4 @@ const uploadOnCloudinary = async (localFilePath) => {
     if (fs.existsSync(localFilePath)) fs.unlinkSync(localFilePath);
     return null;
   }
-};
-
-
-module.exports = {
-  uploadOnCloudinary
 };

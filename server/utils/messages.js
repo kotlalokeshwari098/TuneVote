@@ -1,4 +1,4 @@
-const dayjs=require('dayjs')
+import dayjs from 'dayjs'
 
 const formatMessage=(username,text)=>{
     const timestamp = Date.now();
@@ -9,4 +9,4 @@ const formatMessage=(username,text)=>{
     }
 }
 
-module.exports=formatMessage
+export default formatMessage

@@ -1,7 +1,7 @@
 // jammers.js
 const jammers = []; 
 
-const jammerJoin = (id, username, jamName) => {
+export const jammerJoin = (id, username, jamName) => {
 
   const user = { id, username, jamName };
 
@@ -18,12 +18,9 @@ const jammerJoin = (id, username, jamName) => {
 };
 
 
-const getRoomCount = (io,roomName) => {
+export const getRoomCount = (io,roomName) => {
   const room = io.sockets.adapter.rooms.get(roomName);
   return room ? room.size : 0;
 };
 
-module.exports = {
-  jammerJoin,
-  getRoomCount
-};
+
